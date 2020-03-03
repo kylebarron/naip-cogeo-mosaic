@@ -30,7 +30,12 @@ PIXEL_SELECTION_METHODS = [
     'lastband']
 
 
-@click.command()
+@click.group()
+def main():
+    pass
+
+
+@main.command()
 @click.option(
     '-b',
     '--bbox',
@@ -79,7 +84,7 @@ PIXEL_SELECTION_METHODS = [
     required=False,
     default='first',
     help='Pixel selction method.')
-def main(
+def overview(
     bbox, endpoint, out_path, max_cloud, retina, start_date, end_date,
     pixel_selection):
     # bbox = '-126.71,24.49,-66.59,49.48'
