@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - "10"
+branches:
+  except:
+    # Built website
+    - gh_pages
+deploy:
+  provider: script
+  script: cd site && yarn install && yarn run deploy
+  skip_cleanup: true
+  on:
+    branch: master

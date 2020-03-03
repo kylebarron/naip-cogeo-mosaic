@@ -1,0 +1,19 @@
+{
+  "name": "serverless-aerial-imagery",
+  "version": "0.1.0",
+  "description": ".",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kylebarron/serverless-aerial-imagery.git"
+  },
+  "author": "Kyle Barron <kylebarron2@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kylebarron/serverless-aerial-imagery/issues"
+  },
+  "homepage": "https://github.com/kylebarron/serverless-aerial-imagery#readme"
+}
