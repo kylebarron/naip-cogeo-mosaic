@@ -1,4 +1,4 @@
-service: cogeo-mosaic
+service: cogeo-mosaic-naip
 
 provider:
   name: aws
