@@ -1,5 +1,4 @@
-
-
+[![Build Status](https://travis-ci.org/kylebarron/serverless-aerial-imagery.svg?branch=master)](https://travis-ci.org/kylebarron/serverless-aerial-imagery)
 
 ### Create mosaic
 
