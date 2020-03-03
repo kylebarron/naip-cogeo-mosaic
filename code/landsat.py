@@ -3,6 +3,7 @@ Adapted from:
 https://github.com/developmentseed/awspds-mosaic/blob/master/notebooks/LargeScaleMosaic.ipynb
 """
 
+import json
 import time
 import urllib.parse
 from concurrent import futures
@@ -87,7 +88,8 @@ def main():
 def overview(
     bbox, endpoint, out_path, max_cloud, retina, start_date, end_date,
     pixel_selection):
-    # bbox = '-126.71,24.49,-66.59,49.48'
+    """Create overview landsat images
+    """
     bounds = list(map(float, bbox.split(',')))
 
     if start_date is not None:
@@ -98,10 +100,13 @@ def overview(
     results = construct_mosaic(
         endpoint=endpoint,
         bounds=bounds,
+        minzoom=9,
         max_cloud=max_cloud,
         retina=retina,
         start_date=start_date,
-        end_date=end_date)
+        end_date=end_date,
+        seasons=['spring', 'summer'],
+        tile_format='tif')
     tilescale = 2 if retina is True else 1
     tilesize = 256 * tilescale
     zoom = results["maxzoom"] - (tilescale - 1)
@@ -127,13 +132,71 @@ def overview(
         tilesize=tilesize)
 
 
+@main.command()
+@click.option(
+    '-b',
+    '--bbox',
+    type=str,
+    required=True,
+    help=
+    'Comma-separated bounding box of interest, i.e. `-126.71,24.49,-66.59,49.48`'
+)
+@click.option(
+    '--endpoint', type=str, required=True, help='Base URL of endpoint')
+@click.option(
+    '--max-cloud',
+    type=float,
+    required=False,
+    default=20,
+    show_default=True,
+    help='Max cloud percentage')
+@click.option(
+    '--retina/--no-retina',
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help='If True, generates high DPI tiles')
+@click.option(
+    '--start-date',
+    type=str,
+    required=False,
+    default=None,
+    help='Start date to use for mosaic')
+@click.option(
+    '--end-date',
+    type=str,
+    required=False,
+    default=None,
+    help='End date to use for mosaic, inclusive')
+def mosaic(bbox, endpoint, max_cloud, retina, start_date, end_date):
+    """Create MosaicJSON from Landsat images
+
+    This creates a MosaicJSON from Landsat images matching the provided
+    criteria. Note that the MosaicJSON is automatically uploaded to S3.
+    """
+    bounds = list(map(float, bbox.split(',')))
+    results = construct_mosaic(
+        endpoint=endpoint,
+        bounds=bounds,
+        max_cloud=max_cloud,
+        retina=retina,
+        start_date=start_date,
+        end_date=end_date,
+        seasons=['summer'],
+        tile_format='png')
+    print(json.dumps(results))
+
+
 def construct_mosaic(
     endpoint,
     bounds,
+    minzoom=None,
     retina=True,
     max_cloud=20,
     start_date=None,
-    end_date=None):
+    end_date=None,
+    seasons=['summer'],
+    tile_format='png'):
     """Construct Landsat MosaicJSON from bounds
     """
     if start_date is None:
@@ -151,6 +214,7 @@ def construct_mosaic(
     except AttributeError:
         raise ValueError('end_date should be of type datetime.datetime')
 
+    # Sat-API query
     query = {
         "bbox": bounds,
         "time": f"{start}/{end}",
@@ -174,14 +238,17 @@ def construct_mosaic(
     # for visualization purpose we don't really care about lower zoom level.
     # We could use zoom 11 but don't want to make the mosaicJSON file too big.
     params = {
-        # Minzoom define the quadkey zoom and thus the number of quadkey list
-        # See https://github.com/developmentseed/mosaicjson-spec/tree/master/0.0.2
-        "minzoom": 9,
+        "minzoom": minzoom,
         # We filter the season to have greenest data
-        "seasons": "spring,summer",
+        "seasons": ','.join(seasons),
         # Here we can also pass some tile option to be added to the tile url.
-        "tile_format": "tif",  # We use GeoTIFF output from the tiler
+        "tile_format": tile_format,  # We use GeoTIFF output from the tiler
         "tile_scale": tilescale}
+
+    # Minzoom define the quadkey zoom and thus the number of quadkey list
+    # See https://github.com/developmentseed/mosaicjson-spec/tree/master/0.0.2
+    if minzoom is not None:
+        params['minzoom'] = minzoom
 
     # We post the query to the mosaic endpoint with some optional parameters
     r = requests.post(f"{endpoint}/mosaic/create", json=query, params=params)
@@ -211,7 +278,6 @@ def _call_tile_endpoint(tile, tile_url, extrema, tilesize=256, retry=0):
 
 
 def assemble_tif(out_path, zoom, tiles, tiles_url, extrema, tilesize):
-
     # Define Output COG parameters
     width = (extrema["x"]["max"] - extrema["x"]["min"]) * tilesize
     height = (extrema["y"]["max"] - extrema["y"]["min"]) * tilesize
