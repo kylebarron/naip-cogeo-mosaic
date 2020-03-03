@@ -31,12 +31,12 @@ provider:
      Resource:
        - "arn:aws:s3:::*"
 
-  httpApi:
-    timeout: 15 # Restrict endpoints to timeout in 15s
-    cors: true
+  # httpApi:
+  #   timeout: 15 # Restrict endpoints to timeout in 15s
+  #   cors: true
 
 package:
-  artifact: package.zip
+  artifact: ../../package.zip
 
 functions:
   app:
@@ -61,4 +61,7 @@ functions:
       VSI_CACHE: TRUE
       VSI_CACHE_SIZE: 536870912
     events:
-      - httpApi: '*'
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
