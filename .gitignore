@@ -1,6 +1,6 @@
 *.txt
 *.zip
-*.json
+.serverless
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
