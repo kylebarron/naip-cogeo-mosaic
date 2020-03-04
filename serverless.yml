@@ -31,17 +31,13 @@ provider:
      Resource:
        - "arn:aws:s3:::*"
 
-  # httpApi:
-  #   timeout: 15 # Restrict endpoints to timeout in 15s
-  #   cors: true
-
 package:
-  artifact: ../../package.zip
+  artifact: cogeo-mosaic-tiler/package.zip
 
 functions:
   app:
     handler: cogeo_mosaic_tiler.handlers.app.app
-    memorySize: 2048
+    memorySize: ${opt:memory, 1024}
     timeout: 10
     layers:
       - arn:aws:lambda:${self:provider.region}:524387336408:layer:gdal30-py37-cogeo:8
