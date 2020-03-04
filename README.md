@@ -96,6 +96,12 @@ requests, so creating the MosaicJSON should cost `0.0004 * (219068 / 1000) =
 cat urls_2011_2013.txt \
     | cogeo-mosaic create - \
     > naip_2011_2013_mosaic.json
+cat urls_2014_2015.txt \
+    | cogeo-mosaic create - \
+    > naip_2014_2015_mosaic.json
+cat urls_2015_2017.txt \
+    | cogeo-mosaic create - \
+    > naip_2015_2017_mosaic.json
 ```
 
 ### Deploy
