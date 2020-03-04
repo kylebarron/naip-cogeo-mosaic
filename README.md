@@ -126,19 +126,22 @@ cat urls_2015_2017.txt \
 
 ```bash
 # Create lambda package
-cd cogeo-mosaic-tiler & make package
+cd cogeo-mosaic-tiler
+make package
+cd ..
 
 # Deploy
 npm install serverless -g
-sls deploy --bucket bucket-name --region us-west-2
+sls deploy --bucket bucket-name
 ```
 
 Add the mosaic json
 
 ```bash
 export ENDPOINT_URL="..."
-export ENDPOINT_URL="https://e2pot5hhjk.execute-api.us-west-2.amazonaws.com/production"
-curl -X POST -d @list.json "${ENDPOINT_URL}/add"
+curl -X POST -d @naip_2011_2013_mosaic.json "${ENDPOINT_URL}/add"
+curl -X POST -d @naip_2014_2015_mosaic.json "${ENDPOINT_URL}/add"
+curl -X POST -d @naip_2015_2017_mosaic.json "${ENDPOINT_URL}/add"
 ```
 
 ### Custom endpoint
