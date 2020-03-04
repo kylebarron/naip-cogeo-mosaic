@@ -6,6 +6,7 @@
 git clone --recurse-submodules https://github.com/kylebarron/naip-lambda
 cd naip-lambda
 conda env create -f environment.yml
+source activate naip-lambda
 ```
 
 ### Select TIF URLs

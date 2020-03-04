@@ -1,0 +1,9 @@
+name: naip-lambda
+channels:
+  - conda-forge
+dependencies:
+  - click
+  - pygeos
+  - pip
+  - pip:
+    - cogeo-mosaic
