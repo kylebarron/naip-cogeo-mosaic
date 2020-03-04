@@ -1,21 +1,22 @@
 [![Build Status](https://travis-ci.org/kylebarron/serverless-aerial-imagery.svg?branch=master)](https://travis-ci.org/kylebarron/serverless-aerial-imagery)
 
-### Create mosaic
-
-Install `cogeo-mosaic`, which takes `.tif` files as input and creates a
-MosaicJSON. `cogeo-mosaic` depends on `pygeos`, which I've been unable to
-install through pip, so I first install that through Conda.
+## Install
 
 ```
-conda install pygeos -c conda-forge -y
-pip install cogeo-mosaic
+git clone --recurse-submodules https://github.com/kylebarron/naip-lambda
+cd naip-lambda
+conda env create -f environment.yml
 ```
+
+### Select TIF URLs
 
 Download manifest
 
 ```bash
 aws s3 cp s3://naip-visualization/manifest.txt ./ --request-payer
 ```
+
+Select URLs by years
 
 ```bash
 python code/naip.py manifest \
@@ -38,58 +39,33 @@ python code/naip.py manifest \
     > urls_2015_2017.txt
 ```
 
+As an example, you can get the mosaic footprint of Rhode Island
 ```bash
-cat manifest.txt \
-    | awk -F '/' '{print $1}' \
-    | uniq \
-    | sed '/manifest.test/d' \
-    > states.txt
-
-cat states.txt | while read state
-do
-    cat manifest.txt \
-        | grep "^${state}/" \
-        | awk -F '/' '{print $2}' \
-        | uniq \
-        | sort -nr \
-        | head -n 1 \
-        | sed -e "s|^|${state}/|" \
-        >> states_latest.txt
-done
-
-cat states_latest.txt | while read state_latest
-do
-    cat manifest.txt \
-        | grep "^${state_latest}/" \
-        | grep ".tif" \
-        | sed -e 's|^|s3://naip-visualization/|' \
-        >> tif_latest.txt
-done
-```
-
-See how many tif images per state
-```bash
-cat states.txt | while read state
-do
-    # printf "State: $state "
-    cat tif_latest.txt \
-        | grep "^s3://naip-visualization/${state}/" \
-        | wc -l
-done
-```
-
-Example with Rhode Island
-```bash
-cat tif_latest.txt \
+cat urls_2011_2013.txt \
     | grep "^s3://naip-visualization/ri/" \
     | cogeo-mosaic footprint - > footprint.geojson
 ```
 
+And inspect it with [kepler.gl](https://github.com/kylebarron/keplergl_cli):
+```bash
+kepler footprint.geojson
+```
+
+![](assets/rhode_island_footprint.png)
+
+Here you can see that the tiles to be used in the mosaic of Rhode Island don't
+include the state's border. That's because the Python script to parse the
+manifest deduplicates tiles on the border when they're include in both states.
+If you looked at the footprint of Connecticut, you'd see the missing tiles on
+the border.
+
 Total number of files
 ```bash
-> wc -l tif_latest.txt
-219068 tif_latest.txt
+> wc -l urls_2011_2013.txt
+  213197 urls_2011_2013.txt
 ```
+
+### Create MosaicJSON
 
 NAIP imagery tiffs are in a requester pays bucket. In order to access them, you
 need to set the `AWS_REQUEST_PAYER` environment variable:
@@ -115,24 +91,21 @@ Then create the MosaicJSON file. GET requests are priced at `$0.0004` per 1000
 requests, so creating the MosaicJSON should cost `0.0004 * (219068 / 1000) =
 0.087`. 9 cents!
 
-Just RI for now...
 ```bash
-cat tif_latest.txt \
-    | cogeo-mosaic create - --threads 2 \
-    > naip_mosaic.json
+cat urls_2011_2013.txt \
+    | cogeo-mosaic create - \
+    > naip_2011_2013_mosaic.json
 ```
 
 ### Deploy
 
 ```bash
-git clone https://github.com/developmentseed/cogeo-mosaic-tiler.git
-
 # Create lambda package
 cd cogeo-mosaic-tiler & make package
 
 # Deploy
 npm install serverless -g
-sls deploy --bucket kylebarron-landsat-test --region us-west-2
+sls deploy --bucket bucket-name --region us-west-2
 ```
 
 Add the mosaic json
