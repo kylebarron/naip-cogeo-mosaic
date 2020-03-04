@@ -18,6 +18,27 @@ aws s3 cp s3://naip-visualization/manifest.txt ./ --request-payer
 ```
 
 ```bash
+python code/naip.py manifest \
+    -s 2011 \
+    -e 2013 \
+    manifest.txt \
+    | sed -e 's|^|s3://naip-visualization/|' \
+    > urls_2011_2013.txt
+python code/naip.py manifest \
+    -s 2014 \
+    -e 2015 \
+    manifest.txt \
+    | sed -e 's|^|s3://naip-visualization/|' \
+    > urls_2014_2015.txt
+python code/naip.py manifest \
+    -s 2015 \
+    -e 2017 \
+    manifest.txt \
+    | sed -e 's|^|s3://naip-visualization/|' \
+    > urls_2015_2017.txt
+```
+
+```bash
 cat manifest.txt \
     | awk -F '/' '{print $1}' \
     | uniq \
