@@ -37,7 +37,7 @@ package:
 functions:
   app:
     handler: cogeo_mosaic_tiler.handlers.app.app
-    memorySize: ${opt:memory, 1024}
+    memorySize: 1024
     timeout: 10
     layers:
       - arn:aws:lambda:${self:provider.region}:524387336408:layer:gdal30-py37-cogeo:8
