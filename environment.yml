@@ -2,6 +2,7 @@ name: naip-lambda
 channels:
   - conda-forge
 dependencies:
+  - awscli
   - click
   - pygeos
   - pip
