@@ -104,7 +104,7 @@ GeoTIFF headers of each file), but it might be wise to run the mosaic creation
 on an AWS EC2 instance in the `us-west-2` region (the same region where the NAIP
 imagery is located), so that you don't have to pay for egress bandwidth on the
 requests. I found that creating the mosaic took about 1.5GB of memory; it
-finished in about 2.5 hours per mosaic on a `t2.small` instance.
+finished in about 7 hours per mosaic on a `t2.small` instance.
 
 Then create the MosaicJSON file. GET requests are priced at `$0.0004` per 1000
 requests, so creating the MosaicJSON should cost `0.0004 * (200000 / 1000) =
