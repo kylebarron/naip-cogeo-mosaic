@@ -1,4 +1,19 @@
+# naip-lambda
+
 [![Build Status](https://travis-ci.org/kylebarron/serverless-aerial-imagery.svg?branch=master)](https://travis-ci.org/kylebarron/serverless-aerial-imagery)
+
+Serverless high-resolution NAIP imagery for the lower 48 U.S. states.
+
+## Using
+
+If you'd like to get running quickly, you can use a built [mosaicJSON
+file][mosaic_json] in the [`data/` folder][data/]. Then skip down to "Deploy".
+
+Otherwise, the following describes how to create a custom mosaicJSON file from
+specified years of NAIP imagery available on AWS.
+
+[mosaic_json]: https://github.com/developmentseed/mosaicjson-spec
+[data/]: https://github.com/kylebarron/naip-lambda/tree/master/data
 
 ## Install
 
