@@ -15,13 +15,13 @@ def main():
     '--start-year',
     type=int,
     required=True,
-    help='Start imagery year, from 2011-2017')
+    help='Start imagery year, from 2011-2018')
 @click.option(
     '-e',
     '--end-year',
     type=int,
     required=True,
-    help='End imagery year, from 2011-2017')
+    help='End imagery year, from 2011-2018')
 @click.option(
     '--select-method',
     type=click.Choice(['first', 'last'], case_sensitive=False),
@@ -36,10 +36,10 @@ def manifest(start_year, end_year, select_method, manifest):
     All states were photographed between 2011-2013, and again in 2014-2015. All
     states except Maine were photographed in 2016-2017.
     """
-    if not 2011 <= start_year <= 2017:
-        raise ValueError('start_year must be between 2011-2017')
-    if not 2011 <= end_year <= 2017:
-        raise ValueError('end_year must be between 2011-2017')
+    if not 2011 <= start_year <= 2018:
+        raise ValueError('start_year must be between 2011-2018')
+    if not 2011 <= end_year <= 2018:
+        raise ValueError('end_year must be between 2011-2018')
 
     lines = []
     for line in manifest:
