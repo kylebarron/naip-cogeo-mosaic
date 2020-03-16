@@ -15,15 +15,37 @@ Download `manifest.txt`. This file has a listing of all files stored on the
 `naip-visualization` bucket.
 
 ```bash
-aws s3 cp s3://naip-visualization/manifest.txt ./ --request-payer
+aws s3 cp s3://naip-visualization/manifest_2017.txt ./ --request-payer
+```
+
+**Note** in March 2020, 2018 data was added to the bucket, but as of March 15,
+2020, `manifest.txt` hasn't been updated yet. [This graphic][naip_coverage_2018]
+shows which states were photographed in 2018, so I'll list those files manually.
+
+[naip_coverage_2018]: https://www.fsa.usda.gov/Assets/USDA-FSA-Public/usdafiles/APFO/status-maps/pdfs/NAIP_Coverage_2018.pdf
+
+```bash
+states="ca ut nm tx nd sd ne mo wi mi in ky tn ms wv nc va md de ct ri ma vt nh me"
+for state in $(echo $states); do
+  aws s3 ls --recursive "s3://naip-visualization/$state/2018/" --request-payer \
+    | awk '{print $4}' \
+    >> manifest_2018.txt
+done
+
+# Combine files
+cat manifest_2017.txt manifest_2018.txt > manifest.txt
 ```
 
 All (lower 48) states were photographed between 2011-2013, and again in
-2014-2015. All states except Maine were photographed in 2016-2017. I'll generate
-three MosaicJSONs for each time period. For the last time period, I'll include
-2015-2017 so that Maine isn't missing. For each, I'll take the most recent
-imagery within the time period. ([Here's a map][naip-years] of when each state
-was photographed.)
+2014-2015. All states except Maine were photographed in 2016-2017. All states
+except Oregon were photographed in 2017-2018.
+
+I'll generate four MosaicJSONs: 2011-2013, 2014-2015, 2015-2017, 2016-2018. For
+the last two, I include an extra start year just for Maine/Oregon, but set each
+to use the latest available imagery, so only Maine takes imagery from 2015 and
+only Oregon takes imagery from 2016, respectively. ([Here's an interactive
+map][naip-years] of when each state was photographed, though it doesn't appear
+to include 2018 yet.)
 
 [naip-years]: https://www.arcgis.com/home/webmap/viewer.html?webmap=17944d45bbef42afb05a5652d7c28aa5
 
@@ -49,6 +71,13 @@ python code/naip.py manifest \
     manifest.txt \
     | sed -e 's|^|s3://naip-visualization/|' \
     > urls_2015_2017.txt
+python code/naip.py manifest \
+    -s 2016 \
+    -e 2018 \
+    --select-method last \
+    manifest.txt \
+    | sed -e 's|^|s3://naip-visualization/|' \
+    > urls_2016_2018.txt
 ```
 
 As an example, you can get the mosaic footprint of Rhode Island
@@ -120,6 +149,9 @@ cat urls_2014_2015.txt \
 cat urls_2015_2017.txt \
     | cogeo-mosaic create - \
     > naip_2015_2017_mosaic.json
+cat urls_2016_2018.txt \
+    | cogeo-mosaic create - \
+    > naip_2016_2018_mosaic.json
 ```
 
 ### Deploy
