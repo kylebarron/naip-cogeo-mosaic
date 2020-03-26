@@ -1,5 +1,5 @@
 """
-dynamodb_upload.py: Upload MosaicJSON tiles key to DynamoDB
+dynamodb_upload.py: Upload MosaicJSON to DynamoDB
 """
 
 import hashlib
@@ -25,6 +25,10 @@ def main(input_path, region):
     This finds the "MosaicID" using an SHA224 hash in the same method as
     cogeo-mosaic-tiler. It then creates a new DynamoDB table with that MosaicID,
     and uploads the quadkey-assets key-value pairs to that DynamoDB table.
+
+    All fields of the MosaicJSON other than the "tiles" key is uploaded as an
+    object with `quadkey` value `-1`. Otherwise, each record is a mapping from
+    `quadkey` to asset urls.
     """
     client = boto3.resource('dynamodb', region_name=region)
 
