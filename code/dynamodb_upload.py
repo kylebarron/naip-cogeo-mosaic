@@ -40,7 +40,7 @@ def main(input_path, region):
 
     create_table(client, mosaicid)
     items = create_items(mosaic)
-    upload_items(items)
+    upload_items(client, items, mosaicid)
 
 
 def create_table(client, mosaicid, billing_mode='PAY_PER_REQUEST'):
