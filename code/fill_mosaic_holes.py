@@ -33,6 +33,7 @@ def main(input, out_dir):
 
     mosaics = handle_mosaics(mosaics)
     for path, mosaic in zip(input, mosaics):
+        Path(out_dir).mkdir(exist_ok=True, parents=True)
         with open(Path(out_dir) / Path(path).name, 'w') as f:
             json.dump(mosaic, f, separators=(',', ':'))
 
