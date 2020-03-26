@@ -69,6 +69,11 @@ def upload_items(client, items, mosaicid):
 
 def create_items(mosaic):
     items = []
+    # Create one metadata item with quadkey=-1
+    meta = {k: v for k, v in mosaic.items() if k != 'tiles'}
+    meta['quadkey'] = -1
+    items.append(meta)
+
     for quadkey, assets in mosaic['tiles'].items():
         item = {'quadkey': quadkey, 'assets': assets}
         items.append(item)
