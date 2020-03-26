@@ -4,6 +4,7 @@ dynamodb_upload.py: Upload MosaicJSON to DynamoDB
 
 import hashlib
 import json
+from decimal import Decimal
 
 import boto3
 import click
@@ -67,15 +68,26 @@ def upload_items(client, items, mosaicid):
     table = client.Table(mosaicid)
     with table.batch_writer() as batch:
         print(f'Uploading items to table {mosaicid}')
+        counter = 0
         for item in items:
+            if counter % 1000 == 0:
+                print(f'Uploading #{counter}')
+
             batch.put_item(item)
+            counter += 1
 
 
 def create_items(mosaic):
     items = []
     # Create one metadata item with quadkey=-1
     meta = {k: v for k, v in mosaic.items() if k != 'tiles'}
-    meta['quadkey'] = -1
+
+    # Convert float to decimal
+    # https://blog.ruanbekker.com/blog/2019/02/05/convert-float-to-decimal-data-types-for-boto3-dynamodb-using-python/
+    meta = json.loads(json.dumps(meta), parse_float=Decimal)
+
+    # NOTE: quadkey is a string type
+    meta['quadkey'] = '-1'
     items.append(meta)
 
     for quadkey, assets in mosaic['tiles'].items():
