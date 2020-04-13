@@ -30,6 +30,13 @@ provider:
        - "s3:HeadObject"
      Resource:
        - "arn:aws:s3:::*"
+  -  Effect: "Allow"
+     Action:
+       - "dynamodb:BatchWriteItem"
+       - "dynamodb:CreateTable"
+       - "dynamodb:GetItem"
+     Resource:
+       - "arn:aws:dynamodb:${self:provider.region}:961053664803:table/*"
 
 package:
   artifact: cogeo-mosaic-tiler/package.zip
@@ -37,8 +44,8 @@ package:
 functions:
   app:
     handler: cogeo_mosaic_tiler.handlers.app.app
-    memorySize: 1024
-    timeout: 20
+    memorySize: 512
+    timeout: 30
     layers:
       - arn:aws:lambda:${self:provider.region}:524387336408:layer:gdal30-py37-cogeo:8
     environment:
@@ -46,7 +53,7 @@ functions:
       CPL_TMPDIR: /tmp
       GDAL_CACHEMAX: 25%
       GDAL_DATA: /opt/share/gdal
-      GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+      GDAL_DISABLE_READDIR_ON_OPEN: YES
       GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: YES
       GDAL_HTTP_MULTIPLEX: YES
       GDAL_HTTP_VERSION: 2
