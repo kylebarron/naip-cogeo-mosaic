@@ -96,6 +96,7 @@ python code/naip.py manifest \
 ```
 
 As an example, you can get the mosaic footprint of Rhode Island
+
 ```bash
 cat urls_2011_2013.txt \
     | grep "^s3://naip-visualization/ri/" \
@@ -103,6 +104,7 @@ cat urls_2011_2013.txt \
 ```
 
 And inspect it with [kepler.gl](https://github.com/kylebarron/keplergl_cli):
+
 ```bash
 kepler footprint.geojson
 ```
@@ -116,6 +118,7 @@ If you looked at the footprint of Connecticut, you'd see the missing tiles on
 the border.
 
 Total number of files
+
 ```bash
 > wc -l urls_2011_2013.txt
   213197 urls_2011_2013.txt
@@ -151,8 +154,7 @@ requests. I found that creating the mosaic took about 1.5GB of memory; it
 finished in about 7 hours per mosaic on a `t2.small` instance.
 
 Then create the MosaicJSON file. GET requests are priced at `$0.0004` per 1000
-requests, so creating the MosaicJSON should cost `0.0004 * (200000 / 1000) =
-0.08`. 8 cents!
+requests, so creating the MosaicJSON should cost `0.0004 * (200000 / 1000) = 0.08`. 8 cents!
 
 ```bash
 cat urls_2011_2013.txt \
@@ -168,6 +170,40 @@ cat urls_2016_2018.txt \
     | cogeo-mosaic create - \
     > naip_2016_2018_mosaic.json
 ```
+
+#### Fill in missing quadkeys
+
+Some of these years have small missing areas. For example, in some years parts
+of Montana weren't photographed. `fill_mosaic_holes.py` is a simple script to fill mosaic quadkeys across years.
+
+This following tells the script to look at all the mosaics `data/*.json` and
+create new filled scripts output to the `filled/` folder.
+
+```py
+python code/fill_mosaic_holes.py -o filled data/naip_201*.json
+```
+
+Note that this fills in entire quadkeys that are missing in one year but that
+exist in another. _However_, if a year is missing some areas, there will be
+quadkeys that _exist_ but only have _partial_ data. So without more effort there
+can still be some small holes in the data. See [issue #8][issue-8].
+
+[issue-8]: https://github.com/kylebarron/naip-lambda/issues/8
+
+#### Upload MosaicJSON to DynamoDB
+
+DynamoDB newly has support as a MosaicJSON backend. There's not yet a CLI in the
+`cogeo-mosaic` package to upload a MosaicJSON to DynamoDB, so I wrote a script
+myself.
+
+To upload a MosaicJSON to DynamoDB, run:
+
+```bash
+python code/dynamodb_upload.py filled/naip_2016_2018_mosaic.json
+```
+
+This takes the sha224 hash of the mosaic's content and then uploads all the
+items of the mosaic to a new DynamoDB table with name as the computed hash.
 
 ### Deploy
 
