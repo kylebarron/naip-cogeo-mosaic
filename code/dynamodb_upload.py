@@ -14,13 +14,19 @@ from cogeo_mosaic import version as mosaic_version
 
 @click.command()
 @click.option(
+    '-n',
+    '--table-name',
+    type=str,
+    default=None,
+    help='Name of dynamodb table. If None will be created based on mosaic id.')
+@click.option(
     '--region',
     type=str,
     help='AWS region',
     default='us-west-2',
     show_default=True)
 @click.argument('input_path', nargs=1, type=click.Path(exists=True))
-def main(input_path, region):
+def main(table_name, region, input_path):
     """Upload MosaicJSON quadkey-assets key-value pairs to DynamoDB
 
     This finds the "MosaicID" using an SHA224 hash in the same method as
@@ -36,12 +42,13 @@ def main(input_path, region):
     with open(input_path) as f:
         mosaic = json.load(f)
 
-    mosaicid = get_hash(body=mosaic, version=mosaic_version)
-    print(f'mosaicid: {mosaicid}')
+    if table_name is None:
+        table_name = get_hash(body=mosaic, version=mosaic_version)
+    print(f'table_name: {table_name}')
 
-    create_table(client, mosaicid)
+    create_table(client, table_name)
     items = create_items(mosaic)
-    upload_items(client, items, mosaicid)
+    upload_items(client, items, table_name)
 
 
 def create_table(client, mosaicid, billing_mode='PAY_PER_REQUEST'):
