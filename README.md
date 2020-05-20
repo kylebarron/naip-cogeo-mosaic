@@ -7,12 +7,12 @@ Serverless high-resolution NAIP imagery for the lower 48 U.S. states.
 ## Using
 
 If you'd like to get running quickly, you can use a built [mosaicJSON
-file][mosaic_json] in the [`data/` folder][data/]. Then skip down to "Deploy".
+file][mosaicjson] in the [`data/` folder][data/]. Then skip down to "Deploy".
 
 Otherwise, the following describes how to create a custom mosaicJSON file from
 specified years of NAIP imagery available on AWS.
 
-[mosaic_json]: https://github.com/developmentseed/mosaicjson-spec
+[mosaicjson]: https://github.com/developmentseed/mosaicjson-spec
 [data/]: https://github.com/kylebarron/naip-lambda/tree/master/data
 
 ## Install
@@ -192,18 +192,26 @@ can still be some small holes in the data. See [issue #8][issue-8].
 
 #### Upload MosaicJSON to DynamoDB
 
-DynamoDB newly has support as a MosaicJSON backend. There's not yet a CLI in the
-`cogeo-mosaic` package to upload a MosaicJSON to DynamoDB, so I wrote a script
-myself.
+Now that you have a MosaicJSON file, you need to host it somewhere accessible by
+`cogeo-mosaic-tiler`. Generally the simplest method is uploading the JSON file
+to S3. However since these files are so large (~64MB uncompressed), I found that
+it was taking 2.5s to load and parse the JSON.
+
+As of v3, `cogeo-mosaic` (and thus also `cogeo-mosaic-tiler`) support alternate
+_backends_, such as DynamoDB. DynamoDB is a serverless database that makes
+loading the MosaicJSON fast, because the tiler only needs one or two reads,
+which each take around 10ms (as long as the DynamoDB table is in the same region
+as the tiler).
 
 To upload a MosaicJSON to DynamoDB, run:
 
 ```bash
-python code/dynamodb_upload.py filled/naip_2016_2018_mosaic.json
+pip install -U cogeo-mosaic>=3.0a5
+cogeo-mosaic upload --url 'dynamodb://{aws_region}/{table_name}' mosaic.json
 ```
 
-This takes the sha224 hash of the mosaic's content and then uploads all the
-items of the mosaic to a new DynamoDB table with name as the computed hash.
+That uploads the MosaicJSON to the given table in the specified region, creating
+the table if necessary.
 
 ### Deploy
 
