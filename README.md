@@ -30,7 +30,7 @@ Download `manifest.txt`. This file has a listing of all files stored on the
 `naip-visualization` bucket.
 
 ```bash
-aws s3 cp s3://naip-visualization/manifest_2017.txt ./ --request-payer
+aws s3 cp s3://naip-visualization/manifest.txt ./manifest_2017.txt --request-payer
 ```
 
 **Note** in March 2020, 2018 data was added to the bucket, but as of March 15,
