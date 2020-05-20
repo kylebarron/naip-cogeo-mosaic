@@ -190,30 +190,7 @@ can still be some small holes in the data. See [issue #8][issue-8].
 
 [issue-8]: https://github.com/kylebarron/naip-lambda/issues/8
 
-#### Upload MosaicJSON to DynamoDB
-
-Now that you have a MosaicJSON file, you need to host it somewhere accessible by
-`cogeo-mosaic-tiler`. Generally the simplest method is uploading the JSON file
-to S3. However since these files are so large (~64MB uncompressed), I found that
-it was taking 2.5s to load and parse the JSON.
-
-As of v3, `cogeo-mosaic` (and thus also `cogeo-mosaic-tiler`) support alternate
-_backends_, such as DynamoDB. DynamoDB is a serverless database that makes
-loading the MosaicJSON fast, because the tiler only needs one or two reads,
-which each take around 10ms (as long as the DynamoDB table is in the same region
-as the tiler).
-
-To upload a MosaicJSON to DynamoDB, run:
-
-```bash
-pip install -U cogeo-mosaic>=3.0a5
-cogeo-mosaic upload --url 'dynamodb://{aws_region}/{table_name}' mosaic.json
-```
-
-That uploads the MosaicJSON to the given table in the specified region, creating
-the table if necessary.
-
-### Deploy
+## Deploy
 
 ```bash
 # Create lambda package
@@ -226,21 +203,40 @@ npm install serverless -g
 sls deploy --bucket bucket-name
 ```
 
-Add the mosaic json
+### Upload MosaicJSON files
+
+In order for `cogeo-mosaic-tiler` to create your tiles on demand, it needs to
+access a MosaicJSON file, which you need to host somewhere accessible by
+`cogeo-mosaic-tiler`.
+
+Generally the simplest method is uploading the JSON file to S3. However since
+these files are so large (~64MB uncompressed), I found that it was taking 2.5s
+to load and parse the JSON.
+
+As of v3, `cogeo-mosaic` (and thus also `cogeo-mosaic-tiler`) support alternate
+_backends_, such as DynamoDB. DynamoDB is a serverless database that makes
+loading the MosaicJSON fast, because the tiler only needs one or two reads,
+which each take around 10ms (as long as the DynamoDB table is in the same region
+as the tiler).
+
+For full backend docs, see [`cogeo-mosaic`][cogeo-mosaic].
+
+[cogeo-mosaic]: https://github.com/developmentseed/cogeo-mosaic
+
+#### DynamoDB
+
+To upload a MosaicJSON to DynamoDB, run:
 
 ```bash
-export ENDPOINT_URL="..."
-curl -X POST -d @naip_2011_2013_mosaic.json "${ENDPOINT_URL}/add"
-curl -X POST -d @naip_2014_2015_mosaic.json "${ENDPOINT_URL}/add"
-curl -X POST -d @naip_2015_2017_mosaic.json "${ENDPOINT_URL}/add"
+pip install -U cogeo-mosaic>=3.0a5
+cogeo-mosaic upload --url 'dynamodb://{aws_region}/{table_name}' mosaic.json
 ```
 
-### Custom endpoint
+That uploads the MosaicJSON to the given table in the specified region, creating
+the table if necessary.
 
-```
-https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/firstrun/
-```
+### Proxy your endpoint with Cloudflare
 
-Go to Cloudflare > Choose Domain > SSL/TLS > Origin Server > Create Certificate.
+I like to proxy through Cloudflare to take advantage of their free caching. You can read my blog post [here][cloudflare_caching] to see how to do that.
 
-https://support.cloudflare.com/hc/en-us/articles/115000479507#h_30cc332c-8f6e-42d8-9c59-6c1f06650639
+[cloudflare_caching]: https://kylebarron.dev/blog/caching-lambda-functions-cloudflare
