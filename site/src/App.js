@@ -6,18 +6,13 @@ import ReactMapGL, {
   Layer,
 } from "react-map-gl";
 import { Map } from "immutable";
+import InfoBox from "./info-box";
+// import { mosaicOptions } from "./constants";
+
+const INITIAL_MOSAIC_URL =
+  "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9";
 
 const defaultMapStyle = require("./style.json");
-const mosaicUrls = {
-  "2011-2013":
-    "dynamodb://us-west-2/74f48044f38db32666078e75f3439d8e62cf9e25820afc79ea6ce19f",
-  "2014-2015":
-    "dynamodb://us-west-2/5395d9e7bba4eeaa6af4842e1a7b9d3ea9dfc2a74373ae24698809e9",
-  "2015-2017":
-    "dynamodb://us-west-2/7610d6d77fca346802fb21b89668cb12ef3162a31eb71734a8aaf5de",
-  "2016-2018":
-    "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9",
-};
 function naipUrl(mosaicUrl) {
   const color_ops = "sigmoidal RGB 4 0.5, saturation 1.25";
   const params = {
@@ -30,16 +25,20 @@ function naipUrl(mosaicUrl) {
   return baseUrl + searchParams.toString();
 }
 
-function constructMapStyle(mosaic_choice) {
+function constructMapStyle(mosaicUrl) {
+  // const mosaicUrl = mosaicUrls.filter((x) => x.key === mosaic_choice)[0].value;
+  // const mosaicUrl = mosaicUrls[mosaic]
+
   defaultMapStyle.sources["naip"] = {
     type: "raster",
-    tiles: [naipUrl(mosaicUrls[mosaic_choice])],
+    tiles: [naipUrl(mosaicUrl)],
     tileSize: 512,
     minzoom: 12,
     maxzoom: 17,
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
   };
+  console.log(defaultMapStyle.sources);
   return Map(defaultMapStyle);
 }
 
@@ -83,23 +82,24 @@ class NAIPMap extends React.Component {
 
 class App extends React.Component {
   state = {
-    mosaicChoice: "2016-2018",
-    mapStyle: constructMapStyle("2016-2018"),
+    mosaicUrl: INITIAL_MOSAIC_URL,
+    mapStyle: constructMapStyle(INITIAL_MOSAIC_URL),
   };
 
   render() {
-    const { mosaicChoice } = this.state;
+    const { mosaicUrl, mapStyle } = this.state;
     return (
       <div>
-        <NAIPMap mosaicChoice={mosaicChoice} />
+        <NAIPMap mapStyle={mapStyle} />
         <InfoBox
-          mosaicChoice={mosaicChoice}
-          onChange={(selected) =>
+          mosaicUrl={mosaicUrl}
+          onChange={(selected) => {
+            console.log(selected);
             this.setState({
-              mosaicChoice: selected,
+              mosaicUrl: selected,
               mapStyle: constructMapStyle(selected),
-            })
-          }
+            });
+          }}
         />
       </div>
     );
