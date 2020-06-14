@@ -29,8 +29,8 @@ def main():
     default='last',
     show_default=True,
     help='image selection method')
-@click.argument('manifest', type=click.File())
-def manifest(start_year, end_year, select_method, manifest):
+@click.argument('file', type=click.File())
+def manifest(start_year, end_year, select_method, file):
     """Select TIF URLs from manifest
 
     All states were photographed between 2011-2013, and again in 2014-2015. All
@@ -42,10 +42,15 @@ def manifest(start_year, end_year, select_method, manifest):
     if not 2011 <= end_year <= 2018:
         raise ValueError('end_year must be between 2011-2018')
 
+    skip_lines = ['manifest.txt', 'readme.html', 'readme.txt']
     lines = []
-    for line in manifest:
-        if line != 'manifest.test\n':
-            lines.append(line.strip())
+    for line in file:
+        line = line.strip()
+
+        if line in skip_lines:
+            continue
+
+        lines.append(line)
 
     state_years = {}
     for line in lines:
