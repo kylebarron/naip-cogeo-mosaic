@@ -1,4 +1,4 @@
-service: cogeo-mosaic-naip
+service: naip-cogeo-mosaic
 
 provider:
   name: aws
@@ -7,6 +7,8 @@ provider:
   region: 'us-west-2'
 
   deploymentBucket: ${opt:bucket}
+  httpApi:
+    cors: true
 
   # Add Tags to resources
   stackTags:
@@ -21,21 +23,24 @@ provider:
   iamRoleStatements:
   -  Effect: "Allow"
      Action:
-       - "*"
+      - "s3:GetObject"
+      - "s3:HeadObject"
+      - "s3:PutObject"
      Resource:
        - "arn:aws:s3:::${opt:bucket}*"
+
   -  Effect: "Allow"
      Action:
        - "s3:GetObject"
        - "s3:HeadObject"
      Resource:
        - "arn:aws:s3:::*"
+
   -  Effect: "Allow"
      Action:
-       - "dynamodb:BatchWriteItem"
-       - "dynamodb:CreateTable"
        - "dynamodb:GetItem"
      Resource:
+       # Allow access to all dynamodb tables in region
        - "arn:aws:dynamodb:${self:provider.region}:961053664803:table/*"
 
 package:
@@ -44,11 +49,12 @@ package:
 functions:
   app:
     handler: cogeo_mosaic_tiler.handlers.app.app
-    memorySize: 512
-    timeout: 20
+    memorySize: 1536
+    timeout: 15
     layers:
-      - arn:aws:lambda:${self:provider.region}:524387336408:layer:gdal24-py37-geo:1
+      - arn:aws:lambda:us-west-2:961053664803:layer:gdal24-py37-geo:2
     environment:
+      # Necessary since NAIP bucket is requester-pays
       AWS_REQUEST_PAYER: requester
       CACHE_CONTROL: ${opt:cache-control, 'max-age=3600'}
       CPL_TMPDIR: /tmp
@@ -68,4 +74,3 @@ functions:
       - httpApi:
           path: /{proxy+}
           method: '*'
-          cors: true
