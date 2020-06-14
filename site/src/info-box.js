@@ -23,7 +23,6 @@ export default function InfoBox(props) {
       }}
     >
       <Header as="h3">Serverless Tiled NAIP Imagery</Header>
-
       <p>
         <a
           target="_blank"
@@ -34,11 +33,18 @@ export default function InfoBox(props) {
           Github
         </a>
       </p>
-
       <p>
-        Serverless high-resolution NAIP map tiles, generated on demand an AWS
-        public dataset of Cloud-Optimized GeoTIFFs.
+        Serverless high-resolution NAIP map tiles, generated on demand from an{" "}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://registry.opendata.aws/naip/"
+        >
+          AWS public dataset
+        </a>{" "}
+        of Cloud-Optimized GeoTIFFs.
       </p>
+
       {zoomIn && <p> Zoom in to see imagery.</p>}
       <Select
         style={{ width: "100%" }}
