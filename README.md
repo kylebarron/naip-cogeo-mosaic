@@ -276,6 +276,18 @@ For full backend docs, see [`cogeo-mosaic`][cogeo-mosaic].
 
 #### DynamoDB
 
+If you wish to connect the tiler to one or more DynamoDB tables, you need to deploy with
+
+```bash
+sls deploy --bucket your-mosaic-bucket --aws-account-id your-aws-account-id
+```
+
+You can find your AWS account ID with
+
+```bash
+aws sts get-caller-identity
+```
+
 To upload a MosaicJSON to DynamoDB, run:
 
 ```bash
