@@ -3,66 +3,88 @@
 Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the
 lower 48 U.S. states.
 
+## Overview
+
+The [National Agriculture Imagery Program (NAIP)][naip-info] acquires aerial
+imagery during the agricultural growing seasons in the continental U.S. All NAIP
+imagery between 2011 and 2018 is stored in an AWS S3 [public dataset][naip-aws],
+and crucially the `naip-visualization` bucket stores images in [Cloud-Optimized
+GeoTIFF (COG) format][cog-format]. Because this data format supports streaming
+portions of the image at a time, it [enables serving a basemap of
+imagery][dynamic-map-tiling-blog] on demand without needing to preprocess and
+store any imagery.
+
+This repository is designed to create [MosaicJSON][mosaicjson] files
+representing collections of NAIP imagery that can be used with
+[`cogeo-mosaic-tiler`][cogeo-mosaic-tiler] to serve map tiles on demand.
+
+[naip-info]: https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/
+[naip-aws]: https://registry.opendata.aws/naip/
+[cog-format]: https://www.cogeo.org/
+[dynamic-map-tiling-blog]: https://kylebarron.dev/blog/cog-mosaic/overview
+[cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
+[mosaicjson]: https://github.com/developmentseed/mosaicjson-spec
 
 ## Using
 
-If you'd like to get running quickly, you can use a built [mosaicJSON
-file][mosaicjson] in the [`data/` folder][data/]. Then skip down to "Deploy".
+If you'd like to get running quickly, you can use a built mosaicJSON
+file in the [`filled/` folder][filled/] and skip down to ["Deploy"](#deploy).
 
 Otherwise, the following describes how to create a custom mosaicJSON file from
 specified years of NAIP imagery available on AWS.
 
-[mosaicjson]: https://github.com/developmentseed/mosaicjson-spec
-[data/]: https://github.com/kylebarron/naip-cogeo-mosaic/tree/master/data
+[filled/]: https://github.com/kylebarron/naip-cogeo-mosaic/tree/master/filled
 
-## Install
+### Install
+
+Clone the repository and install Python dependencies.
 
 ```
-git clone --recurse-submodules https://github.com/kylebarron/naip-cogeo-mosaic
+git clone https://github.com/kylebarron/naip-cogeo-mosaic
 cd naip-cogeo-mosaic
 conda env create -f environment.yml
 source activate naip-cogeo-mosaic
 ```
 
+If you prefer using pip, you can run
+
+```
+pip install awscli click pygeos cogeo-mosaic
+```
+
 ### Select TIF URLs
+
+This section outlines methods for selecting files that represent a country-wide
+mosaic of NAIP imagery, which can then be put into a MosaicJSON file for
+serving.
 
 Download `manifest.txt`. This file has a listing of all files stored on the
 `naip-visualization` bucket.
 
 ```bash
-aws s3 cp s3://naip-visualization/manifest.txt ./manifest_2017.txt --request-payer
+aws s3 cp s3://naip-visualization/manifest.txt ./manifest.txt --request-payer
 ```
 
-**Note** in March 2020, 2018 data was added to the bucket, but as of March 15,
-2020, `manifest.txt` hasn't been updated yet. [This graphic][naip_coverage_2018]
-shows which states were photographed in 2018, so I'll list those files manually.
+In the NAIP program, different states are photographed in different years, with
+a target of imaging all states within every 3 years. [Here's an interactive
+map][naip-years] of when each state was photographed, (though it doesn't appear
+to include 2018 yet; [this graphic][naip_coverage_2018] shows which states were
+photographed in 2018).
 
+[naip-years]: https://www.arcgis.com/home/webmap/viewer.html?webmap=17944d45bbef42afb05a5652d7c28aa5
 [naip_coverage_2018]: https://www.fsa.usda.gov/Assets/USDA-FSA-Public/usdafiles/APFO/status-maps/pdfs/NAIP_Coverage_2018.pdf
-
-```bash
-states="ca ut nm tx nd sd ne mo wi mi in ky tn ms wv nc va md de ct ri ma vt nh me"
-for state in $(echo $states); do
-  aws s3 ls --recursive "s3://naip-visualization/$state/2018/" --request-payer \
-    | awk '{print $4}' \
-    >> manifest_2018.txt
-done
-
-# Combine files
-cat manifest_2017.txt manifest_2018.txt > manifest.txt
-```
 
 All (lower 48) states were photographed between 2011-2013, and again in
 2014-2015. All states except Maine were photographed in 2016-2017. All states
 except Oregon were photographed in 2017-2018.
 
-I'll generate four MosaicJSONs: 2011-2013, 2014-2015, 2015-2017, 2016-2018. For
-the last two, I include an extra start year just for Maine/Oregon, but set each
-to use the latest available imagery, so only Maine takes imagery from 2015 and
-only Oregon takes imagery from 2016, respectively. ([Here's an interactive
-map][naip-years] of when each state was photographed, though it doesn't appear
-to include 2018 yet.)
+Therefore, I'll generate four MosaicJSONs, with each spanning a range of
+2011-2013, 2014-2015, 2015-2017, and 2016-2018. For the last two, I include an
+extra start year just for Maine/Oregon, but set each to use the latest available
+imagery, so only Maine takes imagery from 2015 and only Oregon takes imagery
+from 2016, respectively.
 
-[naip-years]: https://www.arcgis.com/home/webmap/viewer.html?webmap=17944d45bbef42afb05a5652d7c28aa5
+The following code block selects imagery for each time span. You can run `python code/naip.py --help` for a full description of available options.
 
 ```bash
 python code/naip.py manifest \
@@ -95,9 +117,37 @@ python code/naip.py manifest \
     > urls_2016_2018.txt
 ```
 
-As an example, you can get the mosaic footprint of Rhode Island
+Each output file includes one filename for each quad identifier, deduplicated
+across years.
+
+```
+> head -n 5 urls_2016_2018.txt
+s3://naip-visualization/al/2017/100cm/rgb/30085/m_3008501_ne_16_1_20171018.tif
+s3://naip-visualization/al/2017/100cm/rgb/30085/m_3008501_nw_16_1_20171006.tif
+s3://naip-visualization/al/2017/100cm/rgb/30085/m_3008502_ne_16_1_20170909.tif
+s3://naip-visualization/al/2017/100cm/rgb/30085/m_3008502_nw_16_1_20170909.tif
+s3://naip-visualization/al/2017/100cm/rgb/30085/m_3008503_ne_16_1_20171017.tif
+```
+
+Additionally, files along state borders are deduplicated. Often,
+cells on state borders are duplicated across years. For example, this image is
+duplicated in both Texas's and Louisiana's datasets:
+
+```
+tx/2012/100cm/rgb/29093/m_2909302_ne_15_1_20120522.tif
+la/2013/100cm/rgb/29093/m_2909302_ne_15_1_20130702.tif
+```
+
+As you can tell by the cell and name, these are the same position across
+different years. I deduplicate these to reduce load on the lambda function
+parsing the mosaicJSON.
+
+To visualize the quads covered by a list of urls, you can visualize its
+footprint. For example, to get the mosaic footprint of Rhode Island from the
+2011-2013 mosaic:
 
 ```bash
+export AWS_REQUEST_PAYER="requester"
 cat urls_2011_2013.txt \
     | grep "^s3://naip-visualization/ri/" \
     | cogeo-mosaic footprint - > footprint.geojson
@@ -109,7 +159,7 @@ And inspect it with [kepler.gl](https://github.com/kylebarron/keplergl_cli):
 kepler footprint.geojson
 ```
 
-![](assets/rhode_island_footprint.png)
+<img src="assets/rhode_island_footprint.png" height="400px">
 
 Here you can see that the tiles to be used in the mosaic of Rhode Island don't
 include the state's border. That's because the Python script to parse the
@@ -194,13 +244,14 @@ can still be some small holes in the data. See [issue #8][issue-8].
 
 ```bash
 # Create lambda package
+git clone https://github.com/developmentseed/cogeo-mosaic-tiler
 cd cogeo-mosaic-tiler
 make package
 cd ..
 
 # Deploy
 npm install serverless -g
-sls deploy --bucket bucket-name
+sls deploy --bucket your-bucket-in-us-west-2
 ```
 
 ### Upload MosaicJSON files

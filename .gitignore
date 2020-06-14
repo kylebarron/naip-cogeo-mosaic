@@ -1,3 +1,5 @@
+cogeo-mosaic-tiler/
+*.geojson
 *.json
 tmp
 data
