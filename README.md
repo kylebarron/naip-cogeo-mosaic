@@ -1,8 +1,8 @@
-# naip-lambda
+# naip-cogeo-mosaic
 
-[![Build Status](https://travis-ci.org/kylebarron/serverless-aerial-imagery.svg?branch=master)](https://travis-ci.org/kylebarron/serverless-aerial-imagery)
+Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the
+lower 48 U.S. states.
 
-Serverless high-resolution NAIP imagery for the lower 48 U.S. states.
 
 ## Using
 
@@ -13,15 +13,15 @@ Otherwise, the following describes how to create a custom mosaicJSON file from
 specified years of NAIP imagery available on AWS.
 
 [mosaicjson]: https://github.com/developmentseed/mosaicjson-spec
-[data/]: https://github.com/kylebarron/naip-lambda/tree/master/data
+[data/]: https://github.com/kylebarron/naip-cogeo-mosaic/tree/master/data
 
 ## Install
 
 ```
-git clone --recurse-submodules https://github.com/kylebarron/naip-lambda
-cd naip-lambda
+git clone --recurse-submodules https://github.com/kylebarron/naip-cogeo-mosaic
+cd naip-cogeo-mosaic
 conda env create -f environment.yml
-source activate naip-lambda
+source activate naip-cogeo-mosaic
 ```
 
 ### Select TIF URLs
@@ -188,7 +188,7 @@ exist in another. _However_, if a year is missing some areas, there will be
 quadkeys that _exist_ but only have _partial_ data. So without more effort there
 can still be some small holes in the data. See [issue #8][issue-8].
 
-[issue-8]: https://github.com/kylebarron/naip-lambda/issues/8
+[issue-8]: https://github.com/kylebarron/naip-cogeo-mosaic/issues/8
 
 ## Deploy
 

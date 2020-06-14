@@ -1,4 +1,4 @@
-name: naip-lambda
+name: naip-cogeo-mosaic
 channels:
   - conda-forge
 dependencies:
