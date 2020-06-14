@@ -52,15 +52,15 @@ class NAIPMap extends React.Component {
       bearing: 0,
       pitch: 0,
     },
-    mosaic_choice: "2016-2018",
-    mapStyle: constructMapStyle("2016-2018"),
   };
 
   render() {
-    const { mapStyle } = this.state;
+    const { viewport } = this.state;
+    const { mapStyle } = this.props;
+
     return (
       <ReactMapGL
-        {...this.state.viewport}
+        {...viewport}
         width="100vw"
         height="100vh"
         mapOptions={{ hash: true }}
@@ -81,12 +81,29 @@ class NAIPMap extends React.Component {
   }
 }
 
-function App(props) {
-  return (
-    <div>
-      <NAIPMap />
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    mosaicChoice: "2016-2018",
+    mapStyle: constructMapStyle("2016-2018"),
+  };
+
+  render() {
+    const { mosaicChoice } = this.state;
+    return (
+      <div>
+        <NAIPMap mosaicChoice={mosaicChoice} />
+        <InfoBox
+          mosaicChoice={mosaicChoice}
+          onChange={(selected) =>
+            this.setState({
+              mosaicChoice: selected,
+              mapStyle: constructMapStyle(selected),
+            })
+          }
+        />
+      </div>
+    );
+  }
 }
 
 export default App;
