@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: python3.7
   stage: ${opt:stage, 'production'}
-  region: 'us-west-2'
+  region: "us-west-2"
 
   deploymentBucket: ${opt:bucket}
   httpApi:
@@ -60,32 +60,32 @@ provider:
 
   apiGateway:
     binaryMediaTypes:
-      - '*/*'
+      - "*/*"
     minimumCompressionSize: 1
 
   # Add other buckets here if needed
   iamRoleStatements:
-  -  Effect: "Allow"
-     Action:
-      - "s3:GetObject"
-      - "s3:HeadObject"
-      - "s3:PutObject"
-     Resource:
-       - "arn:aws:s3:::${opt:bucket}*"
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+        - "s3:HeadObject"
+        - "s3:PutObject"
+      Resource:
+        - "arn:aws:s3:::${opt:bucket}*"
 
-  -  Effect: "Allow"
-     Action:
-       - "s3:GetObject"
-       - "s3:HeadObject"
-     Resource:
-       - "arn:aws:s3:::naip-visualization*"
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+        - "s3:HeadObject"
+      Resource:
+        - "arn:aws:s3:::naip-visualization*"
 
-  -  Effect: "Allow"
-     Action:
-       - "dynamodb:GetItem"
-     Resource:
-       # Allow access to all dynamodb tables in region
-       - "arn:aws:dynamodb:${self:provider.region}:961053664803:table/*"
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+      Resource:
+        # Allow access to all dynamodb tables in region
+        - "arn:aws:dynamodb:${self:provider.region}:961053664803:table/*"
 
 package:
   artifact: cogeo-mosaic-tiler/package.zip
@@ -120,4 +120,4 @@ functions:
     events:
       - httpApi:
           path: /{proxy+}
-          method: '*'
+          method: "*"
