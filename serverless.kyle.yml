@@ -100,7 +100,8 @@ functions:
     environment:
       # Necessary since NAIP bucket is requester-pays
       AWS_REQUEST_PAYER: requester
-      CACHE_CONTROL: ${opt:cache-control, 'max-age=3600'}
+      # Default: One week cache control, one week stale while revalidate
+      CACHE_CONTROL: ${opt:cache-control, 'public,max-age=604800,stale-while-revalidate=604800'}
       CPL_TMPDIR: /tmp
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF
       GDAL_CACHEMAX: 25%
