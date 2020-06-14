@@ -41,7 +41,7 @@ provider:
        - "dynamodb:GetItem"
      Resource:
        # Allow access to all dynamodb tables in region
-       - "arn:aws:dynamodb:${self:provider.region}:961053664803:table/*"
+       - "arn:aws:dynamodb:${self:provider.region}:${opt:aws-account-id, '961053664803'}:table/*"
 
 package:
   artifact: cogeo-mosaic-tiler/package.zip
