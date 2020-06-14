@@ -1,3 +1,5 @@
+@import url('https://api.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css');
+
 .App {
   text-align: center;
 }

@@ -1,8 +1,9 @@
 import React from "react";
 import "./App.css";
 import ReactMapGL, { Source, Layer } from "react-map-gl";
+import Seo from "./seo";
 
-class App extends React.Component {
+class Map extends React.Component {
   state = {
     viewport: {
       latitude: 36.07832,
@@ -53,6 +54,21 @@ class App extends React.Component {
       </ReactMapGL>
     );
   }
+}
+
+function App(props) {
+  return (
+    <div>
+      <Seo
+        siteUrl="https://kylebarron.dev/naip-cogeo-mosaic"
+        title="naip-cogeo-mosaic"
+        description="Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the lower 48 U.S. states."
+        imageUrl="/share_preview_grca.jpg"
+        twitterProfile="@kylebarron"
+      />
+      <Map />
+    </div>
+  );
 }
 
 export default App;
