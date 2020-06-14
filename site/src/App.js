@@ -7,12 +7,18 @@ import ReactMapGL, {
 } from "react-map-gl";
 import { Map } from "immutable";
 import InfoBox from "./info-box";
-// import { mosaicOptions } from "./constants";
 
 const INITIAL_MOSAIC_URL =
   "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9";
+const INITIAL_VIEWPORT = {
+  latitude: 36.07832,
+  longitude: -111.8695,
+  zoom: 13,
+  bearing: 0,
+  pitch: 0,
+};
+const DEFAULT_MAP_STYLE = require("./style.json");
 
-const defaultMapStyle = require("./style.json");
 function naipUrl(mosaicUrl) {
   const color_ops = "sigmoidal RGB 4 0.5, saturation 1.25";
   const params = {
@@ -26,10 +32,7 @@ function naipUrl(mosaicUrl) {
 }
 
 function constructMapStyle(mosaicUrl) {
-  // const mosaicUrl = mosaicUrls.filter((x) => x.key === mosaic_choice)[0].value;
-  // const mosaicUrl = mosaicUrls[mosaic]
-
-  defaultMapStyle.sources["naip"] = {
+  DEFAULT_MAP_STYLE.sources["naip"] = {
     type: "raster",
     tiles: [naipUrl(mosaicUrl)],
     tileSize: 512,
@@ -38,19 +41,12 @@ function constructMapStyle(mosaicUrl) {
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
   };
-  console.log(defaultMapStyle.sources);
-  return Map(defaultMapStyle);
+  return Map(DEFAULT_MAP_STYLE);
 }
 
 class NAIPMap extends React.Component {
   state = {
-    viewport: {
-      latitude: 36.07832,
-      longitude: -111.8695,
-      zoom: 13,
-      bearing: 0,
-      pitch: 0,
-    },
+    viewport: INITIAL_VIEWPORT,
   };
 
   render() {
@@ -93,13 +89,12 @@ class App extends React.Component {
         <NAIPMap mapStyle={mapStyle} />
         <InfoBox
           mosaicUrl={mosaicUrl}
-          onChange={(selected) => {
-            console.log(selected);
+          onChange={(selected) =>
             this.setState({
               mosaicUrl: selected,
               mapStyle: constructMapStyle(selected),
-            });
-          }}
+            })
+          }
         />
       </div>
     );

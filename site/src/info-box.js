@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Accordion,
-  Checkbox,
-  Card,
-  Select,
-  Icon,
-  Container,
-} from "semantic-ui-react";
+import { Header, Select, Icon, Container } from "semantic-ui-react";
 import { mosaicOptions } from "./constants";
 
 export default function InfoBox(props) {
@@ -20,6 +13,7 @@ export default function InfoBox(props) {
         maxWidth: 500,
         left: 10,
         top: 10,
+        padding: 5,
         maxHeight: "70%",
         zIndex: 1,
         backgroundColor: "#fff",
@@ -28,6 +22,23 @@ export default function InfoBox(props) {
         overflow: "visible",
       }}
     >
+      <Header as="h3">Serverless Tiled NAIP Imagery</Header>
+
+      <p>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/kylebarron/naip-cogeo-mosaic"
+        >
+          <Icon name="github" />
+          Github
+        </a>
+      </p>
+
+      <p>
+        Serverless high-resolution NAIP map tiles, generated on demand an AWS
+        public dataset of Cloud-Optimized GeoTIFFs.
+      </p>
       <Select
         style={{ width: "100%" }}
         options={mosaicOptions}
