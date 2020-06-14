@@ -3,7 +3,7 @@ import { Header, Select, Icon, Container } from "semantic-ui-react";
 import { mosaicOptions } from "./constants";
 
 export default function InfoBox(props) {
-  const { mosaicUrl, onChange } = props;
+  const { mosaicUrl, onChange, zoomIn } = props;
 
   return (
     <Container
@@ -39,6 +39,7 @@ export default function InfoBox(props) {
         Serverless high-resolution NAIP map tiles, generated on demand an AWS
         public dataset of Cloud-Optimized GeoTIFFs.
       </p>
+      {zoomIn && <p> Zoom in to see imagery.</p>}
       <Select
         style={{ width: "100%" }}
         options={mosaicOptions}

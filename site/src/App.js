@@ -46,16 +46,8 @@ function constructMapStyle(mosaicUrl) {
 }
 
 class NAIPMap extends React.Component {
-  state = {
-    viewport: {
-      ...INITIAL_VIEWPORT,
-      ...getViewStateFromHash(window.location.hash),
-    },
-  };
-
   render() {
-    const { viewport } = this.state;
-    const { mapStyle } = this.props;
+    const { mapStyle, viewport, onViewportChange } = this.props;
 
     return (
       <ReactMapGL
@@ -64,7 +56,7 @@ class NAIPMap extends React.Component {
         height="100vh"
         mapOptions={{ hash: true }}
         mapStyle={mapStyle}
-        onViewportChange={(viewport) => this.setState({ viewport })}
+        onViewportChange={onViewportChange}
       >
         <Layer
           source="naip"
@@ -87,17 +79,26 @@ class NAIPMap extends React.Component {
 
 class App extends React.Component {
   state = {
+    viewport: {
+      ...INITIAL_VIEWPORT,
+      ...getViewStateFromHash(window.location.hash),
+    },
     mosaicUrl: INITIAL_MOSAIC_URL,
     mapStyle: constructMapStyle(INITIAL_MOSAIC_URL),
   };
 
   render() {
-    const { mosaicUrl, mapStyle } = this.state;
+    const { mosaicUrl, mapStyle, viewport } = this.state;
     return (
       <div>
-        <NAIPMap mapStyle={mapStyle} />
+        <NAIPMap
+          mapStyle={mapStyle}
+          viewport={viewport}
+          onViewportChange={(viewport) => this.setState({ viewport })}
+        />
         <InfoBox
           mosaicUrl={mosaicUrl}
+          zoomIn={viewport.zoom < 11.5}
           onChange={(selected) =>
             this.setState({
               mosaicUrl: selected,
