@@ -8,11 +8,55 @@ provider:
 
   deploymentBucket: ${opt:bucket}
   httpApi:
-    cors: true
+    cors:
+      allowedOrigins:
+        # You can't do http://localhost:* and http://localhost doesn't work
+        - http://localhost:3000
+        - http://localhost:3001
+        - http://localhost:3002
+        - http://localhost:3003
+        - http://localhost:3004
+        - http://localhost:3005
+        - http://localhost:3006
+        - http://localhost:8000
+        - http://localhost:8001
+        - http://localhost:8002
+        - http://localhost:8003
+        - http://localhost:8004
+        - http://localhost:8005
+        - http://localhost:8006
+        - http://localhost:8080
+        - http://localhost:8081
+        - http://localhost:8082
+        - http://localhost:8083
+        - http://localhost:8084
+        - https://all-transit.com
+        - https://kylebarron.dev
+        - https://kylebarron.github.io
+        - https://landsat3d.com
+        - https://landsat8.earth
+        - https://nst.guide
+        - https://nstguide.com
+        - https://sentinel2.earth
+        - https://trails3d.com
+      allowedHeaders:
+        - Authorization
+        - Content-Type
+        - X-Amz-Date
+        - X-Amz-Security-Token
+        - X-Amz-User-Agent
+        - X-Api-Key
+      allowedMethods:
+        - GET
+        - OPTIONS
+      exposedResponseHeaders:
+        # Source asset strings per tile
+        - X-ASSETS
+      maxAge: 6000 # In seconds
 
   # Add Tags to resources
   stackTags:
-    Project: cogeo
+    Project: naip-cogeo-mosaic
 
   apiGateway:
     binaryMediaTypes:

@@ -251,7 +251,7 @@ cd ..
 
 # Deploy
 npm install serverless -g
-sls deploy --bucket your-bucket-in-us-west-2
+sls deploy --bucket your-mosaic-bucket
 ```
 
 ### Upload MosaicJSON files
