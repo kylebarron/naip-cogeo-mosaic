@@ -62,7 +62,12 @@ class NAIPMap extends React.Component {
         mapStyle={mapStyle}
         onViewportChange={(viewport) => this.setState({ viewport })}
       >
-        <Layer source="naip" id="naip-layer" type="raster" />
+        <Layer
+          source="naip"
+          id="naip-layer"
+          type="raster"
+          beforeId="tunnel_motorway_link_casing"
+        />
 
         <div style={{ position: "absolute", right: 10, top: 10 }}>
           <NavigationControl />
