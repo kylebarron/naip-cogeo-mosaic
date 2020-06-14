@@ -3,9 +3,13 @@
 Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the
 lower 48 U.S. states.
 
-[![](assets/grca.jpg)](https://kylebarron.dev/naip-cogeo-mosaic)
+[Interactive example][example-website]
+
+[![](assets/grca.jpg)][example-website]
 
 60cm-resolution NAIP imagery of the Grand Canyon from 2017.
+
+[example-website]: https://kylebarron.dev/naip-cogeo-mosaic
 
 ## Overview
 
