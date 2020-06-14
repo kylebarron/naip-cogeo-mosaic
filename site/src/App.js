@@ -7,6 +7,7 @@ import ReactMapGL, {
 } from "react-map-gl";
 import { Map } from "immutable";
 import InfoBox from "./info-box";
+import { getViewStateFromHash } from "./util";
 
 const INITIAL_MOSAIC_URL =
   "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9";
@@ -46,7 +47,10 @@ function constructMapStyle(mosaicUrl) {
 
 class NAIPMap extends React.Component {
   state = {
-    viewport: INITIAL_VIEWPORT,
+    viewport: {
+      ...INITIAL_VIEWPORT,
+      ...getViewStateFromHash(window.location.hash),
+    },
   };
 
   render() {
