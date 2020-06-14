@@ -1,7 +1,7 @@
 {
   "name": "site",
   "version": "0.1.0",
-  "homepage": "https://kylebarron.dev/serverless-aerial-imagery",
+  "homepage": "https://kylebarron.dev/naip-cogeo-mosaic",
   "license": "MIT",
   "author": "Kyle Barron <kylebarron2@gmail.com>",
   "dependencies": {
@@ -18,7 +18,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "react-scripts build && gh-pages -d build -b gh-pages -r https://$GH_TOKEN@github.com/kylebarron/serverless-aerial-imagery.git"
+    "deploy": "react-scripts build && gh-pages -d build -b gh-pages -r https://$GH_TOKEN@github.com/kylebarron/naip-cogeo-mosaic.git"
   },
   "eslintConfig": {
     "extends": "react-app"

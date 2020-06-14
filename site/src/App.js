@@ -4,27 +4,30 @@ import ReactMapGL, { Source, Layer } from "react-map-gl";
 
 class App extends React.Component {
   state = {
-      viewport: {
-        latitude: 37.8,
-        longitude: -122.4,
-        zoom: 14,
-        bearing: 0,
-        pitch: 0
-      }
-    };
+    viewport: {
+      latitude: 36.07832,
+      longitude: -111.8695,
+      zoom: 13,
+      bearing: 0,
+      pitch: 0,
+    },
+  };
 
-  landsatUrl = () => {
+  naipUrl = () => {
+    const color_ops = "sigmoidal RGB 4 0.5, saturation 1.25";
+    // 2016-2018 mosaic
+    const mosaicUrl =
+      "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9";
+
     const params = {
-      bands: "4,3,2",
-      color_ops: "gamma RGB 3.5, saturation 1.7, sigmoidal RGB 15 0.35"
+      url: mosaicUrl,
+      color_ops,
     };
     const searchParams = new URLSearchParams(params);
     let baseUrl =
-      "https://landsat-lambda.kylebarron.dev/tiles/e276a5acd25d7f2abc6c1233067628822d4de9c96b3c8977a168fee7/{z}/{x}/{y}@2x.png?";
-    baseUrl += searchParams.toString();
-    return baseUrl;
-
-  }
+      "https://us-west-2-lambda.kylebarron.dev/naip/{z}/{x}/{y}@2x.jpg?";
+    return baseUrl + searchParams.toString();
+  };
 
   render() {
     return (
@@ -34,28 +37,18 @@ class App extends React.Component {
         height="100vh"
         mapOptions={{ hash: true }}
         mapStyle="https://raw.githubusercontent.com/kylebarron/fiord-color-gl-style/master/style.json"
-        onViewportChange={viewport => this.setState({ viewport })}
+        onViewportChange={(viewport) => this.setState({ viewport })}
       >
         <Source
           id="naip-lambda"
           type="raster"
-          url="https://naip-lambda.kylebarron.dev/4c4d507790e8afa837215677bd6f74f58711bfaf3e1d5f7226193e12/tilejson.json?tile_scale=2"
+          tiles={[this.naipUrl()]}
           tileSize={512}
+          minzoom={12}
+          maxzoom={17}
+          attribution='<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>'
         >
           <Layer id="naip-lambda-layer" type="raster" />
-        </Source>
-
-        <Source
-          id="landsat-lambda"
-          type="raster"
-          tileSize={512}
-          tiles={[
-            this.landsatUrl()
-          ]}
-          minzoom={7}
-          maxzoom={12}
-        >
-          <Layer id="landsat-lambda-layer" type="raster" minzoom={7} maxzoom={12} />
         </Source>
       </ReactMapGL>
     );
