@@ -3,6 +3,10 @@
 Serverless high-resolution NAIP map tiles from Cloud-Optimized GeoTIFFs for the
 lower 48 U.S. states.
 
+[![](assets/grca.jpg)](https://kylebarron.dev/naip-cogeo-mosaic)
+
+60cm-resolution NAIP imagery of the Grand Canyon from 2017.
+
 ## Overview
 
 The [National Agriculture Imagery Program (NAIP)][naip-info] acquires aerial
