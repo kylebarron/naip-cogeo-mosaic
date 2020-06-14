@@ -6,7 +6,7 @@ provider:
   stage: ${opt:stage, 'production'}
   region: "us-west-2"
 
-  deploymentBucket: ${opt:bucket}
+  deploymentBucket: ${opt:bucket, 'mosaics-us-west-2.kylebarron.dev'}
   httpApi:
     cors:
       allowedOrigins:
