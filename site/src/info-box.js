@@ -1,18 +1,18 @@
 import React from "react";
-import { Header, Select, Icon, Container } from "semantic-ui-react";
+import { Header, Select, Icon } from "semantic-ui-react";
 import { mosaicOptions } from "./constants";
 
 export default function InfoBox(props) {
   const { mosaicUrl, onChange, zoomIn } = props;
 
   return (
-    <Container
+    <div
       style={{
         position: "absolute",
-        width: 280,
-        maxWidth: 500,
-        left: 10,
-        top: 10,
+        width: 300,
+        maxWidth: 400,
+        left: 5,
+        top: 5,
         padding: 5,
         maxHeight: "70%",
         zIndex: 1,
@@ -22,17 +22,7 @@ export default function InfoBox(props) {
         overflow: "visible",
       }}
     >
-      <Header as="h3">Serverless Tiled NAIP Imagery</Header>
-      <p>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://github.com/kylebarron/naip-cogeo-mosaic"
-        >
-          <Icon name="github" />
-          Github
-        </a>
-      </p>
+      <Header as="h3">Serverless NAIP Imagery</Header>
       <p>
         Serverless high-resolution NAIP map tiles, generated on demand from an{" "}
         <a
@@ -42,7 +32,15 @@ export default function InfoBox(props) {
         >
           AWS public dataset
         </a>{" "}
-        of Cloud-Optimized GeoTIFFs.
+        of Cloud-Optimized GeoTIFFs.{" "}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/kylebarron/naip-cogeo-mosaic"
+        >
+          <Icon name="github" />
+          Github
+        </a>
       </p>
 
       {zoomIn && <p> Zoom in to see imagery.</p>}
@@ -52,6 +50,6 @@ export default function InfoBox(props) {
         value={mosaicUrl}
         onChange={(e, data) => onChange(data.value)}
       />
-    </Container>
+    </div>
   );
 }
