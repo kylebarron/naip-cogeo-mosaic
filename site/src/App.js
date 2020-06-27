@@ -21,14 +21,13 @@ const INITIAL_VIEWPORT = {
 const DEFAULT_MAP_STYLE = require("./style.json");
 
 function naipUrl(mosaicUrl) {
-  const color_ops = "sigmoidal RGB 4 0.5, saturation 1.25";
+  // Do saturation client side for speed
+  // const color_ops = "sigmoidal RGB 4 0.5, saturation 1.25";
   const params = {
     url: mosaicUrl,
-    color_ops,
   };
   const searchParams = new URLSearchParams(params);
-  let baseUrl =
-    "https://us-west-2-lambda.kylebarron.dev/naip/{z}/{x}/{y}@2x.jpg?";
+  let baseUrl = "https://us-west-2-lambda.kylebarron.dev/naip/{z}/{x}/{y}.jpg?";
   return baseUrl + searchParams.toString();
 }
 
@@ -36,7 +35,7 @@ function constructMapStyle(mosaicUrl) {
   DEFAULT_MAP_STYLE.sources["naip"] = {
     type: "raster",
     tiles: [naipUrl(mosaicUrl)],
-    tileSize: 512,
+    tileSize: 256,
     minzoom: 12,
     maxzoom: 17,
     attribution:
@@ -63,6 +62,9 @@ class NAIPMap extends React.Component {
           id="naip-layer"
           type="raster"
           beforeId="tunnel_motorway_link_casing"
+          paint={{
+            "raster-saturation": 0.35,
+          }}
         />
 
         <div style={{ position: "absolute", right: 10, top: 10 }}>
