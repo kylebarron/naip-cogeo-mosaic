@@ -36,8 +36,8 @@ function constructMapStyle(mosaicUrl) {
     type: "raster",
     tiles: [naipUrl(mosaicUrl)],
     tileSize: 256,
-    minzoom: 12,
-    maxzoom: 17,
+    minzoom: 13,
+    maxzoom: 18,
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
   };
