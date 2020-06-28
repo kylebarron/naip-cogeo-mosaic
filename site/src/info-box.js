@@ -43,7 +43,11 @@ export default function InfoBox(props) {
         </a>
       </p>
 
-      {zoomIn && <p> Zoom in to see imagery.</p>}
+      {zoomIn && (
+        <p>
+          <b> Zoom in to see imagery. </b>
+        </p>
+      )}
       <Select
         style={{ width: "100%" }}
         options={mosaicOptions}
