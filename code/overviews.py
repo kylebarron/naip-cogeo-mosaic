@@ -128,7 +128,7 @@ def create_overview(file, output_profile, config, overview_level):
         prefix=Path(file).stem,
         max_overview_level=overview_level,
         config=config,
-        threads=4,
+        threads=1,
     )
 
 
