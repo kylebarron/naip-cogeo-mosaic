@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from copy import deepcopy
 from functools import partial
 from multiprocessing import Pool
@@ -77,7 +78,6 @@ def subset_mosaic(mosaic, overview_qk, overview_zoom):
 
 @click.command()
 @click.argument("input_dir", type=click.Path())
-# @click.option('-o', '--out-dir', type=click.Path(), help='Output dir')
 @click.option(
     '-j', '--n-proc', type=int, default=4, help='# of processes in pool')
 @click.option(
@@ -132,8 +132,76 @@ def create_overview(file, output_profile, config, overview_level):
     )
 
 
+@click.command()
+@click.argument("urls", type=click.File())
+@click.option(
+    '--quadkey-zoom',
+    type=int,
+    default=6,
+    show_default=True,
+    help='Quadkey zoom level for overview')
+@click.option(
+    '--min-zoom',
+    type=int,
+    default=6,
+    show_default=True,
+    help='Min zoom level for overview')
+@click.option(
+    '--max-zoom',
+    type=int,
+    default=11,
+    show_default=True,
+    help='Max zoom level for overview')
+def create_overview_mosaic(urls, quadkey_zoom, min_zoom, max_zoom):
+    """Create mosaic representing overview
+    """
+    # Input is file object
+    urls = [l.strip() for l in urls.readlines()]
+
+    quadkeys = [parse_url(url, quadkey_zoom) for url in urls]
+
+    # Find bounds of quadkeys
+    bboxes = [
+        mercantile.bounds(mercantile.quadkey_to_tile(qk)) for qk in quadkeys]
+    minx = min(bboxes, key=lambda bbox: bbox[0])[0]
+    miny = min(bboxes, key=lambda bbox: bbox[1])[1]
+    maxx = max(bboxes, key=lambda bbox: bbox[2])[2]
+    maxy = max(bboxes, key=lambda bbox: bbox[3])[3]
+    bounds = [minx, miny, maxx, maxy]
+
+    # Find center
+    center = [(minx + maxx) / 2, (miny + maxy) / 2, min_zoom]
+
+    tiles = {}
+    for qk, url in zip(quadkeys, urls):
+        tiles[qk] = [url]
+
+    mosaic = {
+        "mosaicjson": "0.0.2",
+        "minzoom": min_zoom,
+        "maxzoom": max_zoom,
+        "quadkey_zoom": 6,
+        "bounds": bounds,
+        "center": center,
+        "tiles": tiles}
+
+    # Validation
+    mosaic = MosaicJSON(**mosaic).dict(exclude_none=True)
+    print(json.dumps(mosaic, separators=(',', ':')))
+
+
+def parse_url(url, quadkey_zoom):
+    """Parse quadkey from url
+    """
+    name = url.split('/')[-1]
+    match = re.findall(r'([0-3]{{{0}}})'.format(quadkey_zoom), name)
+    qk = match[-1]
+    return qk
+
+
 main.add_command(split_mosaic)
 main.add_command(create_overviews)
+main.add_command(create_overview_mosaic)
 
 if __name__ == '__main__':
     main()
