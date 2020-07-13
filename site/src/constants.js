@@ -11,13 +11,13 @@ export const fullResMosaics = {
 
 export const overviewMosaics = {
   "2011-2013":
-    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip_overview_2011_2013.json.gz",
+    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip/naip_overview_2011_2013.json.gz",
   "2014-2015":
-    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip_overview_2014_2015.json.gz",
+    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip/naip_overview_2014_2015.json.gz",
   "2015-2017":
-    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip_overview_2015_2017.json.gz",
+    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip/naip_overview_2015_2017.json.gz",
   "2016-2018":
-    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip_overview_2016_2018.json.gz",
+    "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip/naip_overview_2016_2018.json.gz",
 };
 
 export const mosaicOptions = [
