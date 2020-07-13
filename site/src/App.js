@@ -8,9 +8,10 @@ import ReactMapGL, {
 import { Map } from "immutable";
 import InfoBox from "./info-box";
 import { getViewStateFromHash } from "./util";
+import { fullResMosaics, overviewMosaics } from "./constants";
+const DEFAULT_MAP_STYLE = require("./style.json");
 
-const INITIAL_MOSAIC_URL =
-  "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9";
+const INITIAL_MOSAIC_YEAR_RANGE = "2016-2018";
 const INITIAL_VIEWPORT = {
   latitude: 36.07832,
   longitude: -111.8695,
@@ -18,7 +19,6 @@ const INITIAL_VIEWPORT = {
   bearing: 0,
   pitch: 0,
 };
-const DEFAULT_MAP_STYLE = require("./style.json");
 
 function naipUrl(mosaicUrl) {
   // Do saturation client side for speed
@@ -31,13 +31,25 @@ function naipUrl(mosaicUrl) {
   return baseUrl + searchParams.toString();
 }
 
-function constructMapStyle(mosaicUrl) {
+function constructMapStyle(mosaicYearRange) {
+  const fullResMosaicUrl = fullResMosaics[mosaicYearRange];
+  const overviewMosaicUrl = overviewMosaics[mosaicYearRange];
+
   DEFAULT_MAP_STYLE.sources["naip"] = {
     type: "raster",
-    tiles: [naipUrl(mosaicUrl)],
+    tiles: [naipUrl(fullResMosaicUrl)],
     tileSize: 256,
     minzoom: 13,
     maxzoom: 18,
+    attribution:
+      '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
+  };
+  DEFAULT_MAP_STYLE.sources["naip-overview"] = {
+    type: "raster",
+    tiles: [naipUrl(overviewMosaicUrl)],
+    tileSize: 256,
+    minzoom: 6,
+    maxzoom: 12,
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
   };
@@ -66,6 +78,16 @@ class NAIPMap extends React.Component {
             "raster-saturation": 0.35,
           }}
         />
+        <Layer
+          source="naip-overview"
+          id="naip-layer-overview"
+          type="raster"
+          maxzoom={11.5}
+          beforeId="tunnel_motorway_link_casing"
+          paint={{
+            "raster-saturation": 0.35,
+          }}
+        />
 
         <div style={{ position: "absolute", right: 10, top: 10 }}>
           <NavigationControl />
@@ -85,12 +107,12 @@ class App extends React.Component {
       ...INITIAL_VIEWPORT,
       ...getViewStateFromHash(window.location.hash),
     },
-    mosaicUrl: INITIAL_MOSAIC_URL,
-    mapStyle: constructMapStyle(INITIAL_MOSAIC_URL),
+    mosaicYearRange: INITIAL_MOSAIC_YEAR_RANGE,
+    mapStyle: constructMapStyle(INITIAL_MOSAIC_YEAR_RANGE),
   };
 
   render() {
-    const { mosaicUrl, mapStyle, viewport } = this.state;
+    const { mosaicYearRange, mapStyle, viewport } = this.state;
     return (
       <div>
         <NAIPMap
@@ -99,11 +121,11 @@ class App extends React.Component {
           onViewportChange={(viewport) => this.setState({ viewport })}
         />
         <InfoBox
-          mosaicUrl={mosaicUrl}
+          mosaicYearRange={mosaicYearRange}
           zoomIn={viewport.zoom < 11.5}
           onChange={(selected) =>
             this.setState({
-              mosaicUrl: selected,
+              mosaicYearRange: selected,
               mapStyle: constructMapStyle(selected),
             })
           }

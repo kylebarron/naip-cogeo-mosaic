@@ -3,7 +3,7 @@ import { Header, Select, Icon } from "semantic-ui-react";
 import { mosaicOptions } from "./constants";
 
 export default function InfoBox(props) {
-  const { mosaicUrl, onChange, zoomIn } = props;
+  const { mosaicYearRange, onChange, zoomIn } = props;
 
   return (
     <div
@@ -51,7 +51,7 @@ export default function InfoBox(props) {
       <Select
         style={{ width: "100%" }}
         options={mosaicOptions}
-        value={mosaicUrl}
+        value={mosaicYearRange}
         onChange={(e, data) => onChange(data.value)}
       />
     </div>
