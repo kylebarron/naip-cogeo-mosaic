@@ -122,7 +122,7 @@ class App extends React.Component {
         />
         <InfoBox
           mosaicYearRange={mosaicYearRange}
-          zoomIn={viewport.zoom < 11.5}
+          zoomIn={viewport.zoom < 4.5}
           onChange={(selected) =>
             this.setState({
               mosaicYearRange: selected,
