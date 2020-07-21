@@ -7,4 +7,5 @@ dependencies:
   - pygeos
   - pip
   - pip:
-    - cogeo-mosaic
+    - cogeo-mosaic>=3.0a5
+    - rio-cogeo>=2.0a4

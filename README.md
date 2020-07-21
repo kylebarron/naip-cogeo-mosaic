@@ -57,7 +57,7 @@ source activate naip-cogeo-mosaic
 If you prefer using pip, you can run
 
 ```
-pip install awscli click pygeos cogeo-mosaic
+pip install awscli click pygeos 'rio-cogeo>=2.0a4' 'cogeo-mosaic>=3.0a5'
 ```
 
 ### Select TIF URLs
