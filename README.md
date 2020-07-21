@@ -311,3 +311,122 @@ the table if necessary.
 I like to proxy through Cloudflare to take advantage of their free caching. You can read my blog post [here][cloudflare_caching] to see how to do that.
 
 [cloudflare_caching]: https://kylebarron.dev/blog/caching-lambda-functions-cloudflare
+
+## Low Zoom Overviews
+
+The NAIP imagery hosted on AWS in the `naip-visualization` bucket has
+full-resolution imagery plus 5 levels of internal overviews within each GeoTIFF.
+That means that it's fast to read image data for 6 or 7 zoom levels, but will
+slow down as you zoom out, since you'll necessarily need to read and combine
+many images, and perform downsampling on the fly.
+
+The native zoom range for source NAIP COG imagery is roughly 12-18. That means
+that for one zoom 6 tile, you'd have to combine imagery for 4^6 = 4,096 COGs on
+the fly.
+
+A way to solve this issue is to pregenerate lower zoom overviews given a mosaic.
+This removes some flexibility, as you have to choose upfront how to combine the
+higher-resolution images, but enables performant serving of lower-resolution
+imagery.
+
+**If you don't want to generate your own overviews, pregenerated overviews are
+available in a requester pays bucket of mine, and overview mosaics are
+available in the [`filled/`](filled/) directory.** My overview COGs are
+available at `s3://rp.kylebarron.dev/cog/naip/deflate/`.
+
+This section outlines how to create these overviews, which are themselves COGs.
+After creating the overviews, you'll have fast low-zoom imagery, as you can see
+in this screenshot of Colorado.
+
+[![](./assets/co_overview.jpg)](https://kylebarron.dev/naip-cogeo-mosaic/#6.75/39.02/-105.323)
+
+**Note, this code is experimental.**
+
+I want to have a seamless downsampled map. To do this I'll create overview COGs,
+and then create _another_ mosaic from these downsampled images. For zooms 12 and
+up, the map will fetch images using the full-resolution mosaic; for zooms 6-12,
+the map will use the lower-resolution mosaic.
+
+To make this mosaic, I'll create a new overview COG for each zoom 6 mercator
+tile. Then within a zoom 6 tile, only one source COG will need to be read.
+
+First, split the large, U.S.-wide mosaic into mosaics for each zoom 6 quadkey,
+using a script in `code/overviews.py`.
+
+```bash
+python code/overviews.py split-mosaic \
+    -z 6 \
+    -o overview-mosaics \
+    --prefix naip_2011_2013_ \
+    filled/naip_2011_2013_mosaic.json
+python code/overviews.py split-mosaic \
+    -z 6 \
+    -o overview-mosaics \
+    --prefix naip_2014_2015_ \
+    filled/naip_2014_2015_mosaic.json
+python code/overviews.py split-mosaic \
+    -z 6 \
+    -o overview-mosaics \
+    --prefix naip_2015_2017_ \
+    filled/naip_2015_2017_mosaic.json
+python code/overviews.py split-mosaic \
+    -z 6 \
+    -o overview-mosaics \
+    --prefix naip_2016_2018_ \
+    filled/naip_2016_2018_mosaic.json
+```
+
+This creates about 50 temporary mosaics for each country-wide mosaic, and just
+over 200 total. Each of these mosaics defines the source input imagery necessary
+to create _one_ overview COG.
+
+Then we need a loop that will create an overview image for each of the above
+temporary mosaics. This step uses the `overview` code in
+[`cogeo-mosaic`][cogeo-mosaic].
+
+[cogeo-mosaic]: https://github.com/developmentseed/cogeo-mosaic
+
+**I highly recommend to do this step on an EC2 instance in the same region as
+the NAIP data (`us-west-2`).** Since NAIP data is in a requester pays bucket,
+if you do this step elsewhere, you'll have to pay egress fees for intermediate
+imagery taken out of the region. Additionally, this code is not yet memory-
+optimized, so you may need an instance with a good amount of memory.
+
+```bash
+# NAIP imagery is in a requester pays bucket
+export AWS_REQUEST_PAYER="requester"
+# Necessary on an EC2 instance
+export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+# Necessary to prevent expensive, unnecessary S3 LIST requests!
+export GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR
+mkdir out && cd out
+python ../code/overviews.py create-overviews \
+    `# Number of processes to use in parallel` \
+    -j 2 \
+    `# Input directory of temporary mosaics created above` \
+    `# Output dir is current directory` \
+    ../overview-mosaics
+```
+
+The output images _should_ be in COG already, but to make sure I'll use
+[`rio-cogeo`][rio-cogeo] to convert them before final storage on S3. You should
+use a `blocksize` and `overview-blocksize` that matches the size of imagery you
+use in your website.
+
+[rio-cogeo]: https://github.com/cogeotiff/rio-cogeo
+
+```bash
+mkdir ../cog_deflate/
+for file in $(ls *.tif); do
+    rio cogeo create \
+        --blocksize 256 \
+        --overview-blocksize 256 \
+        $file ../cog_deflate/$file;
+done
+```
+
+Then upload your output images to an S3 bucket of yours, and finally, create new
+overview mosaics from these images. For full information, see its documentation
+(`code/overviews.py create-overview-mosaic --help`). As input you should pass a
+list of S3 urls to your overview COG files you just created. Don't rename the
+filenames before passing to the script.
