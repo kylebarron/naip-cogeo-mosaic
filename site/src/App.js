@@ -68,6 +68,7 @@ class NAIPMap extends React.Component {
         mapOptions={{ hash: true }}
         mapStyle={mapStyle}
         onViewportChange={onViewportChange}
+        minZoom={4.5}
       >
         <Layer
           source="naip-overview"
