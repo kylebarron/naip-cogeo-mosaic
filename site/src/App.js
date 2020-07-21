@@ -70,19 +70,24 @@ class NAIPMap extends React.Component {
         onViewportChange={onViewportChange}
       >
         <Layer
-          source="naip"
-          id="naip-layer"
+          source="naip-overview"
+          id="naip-layer-overview"
           type="raster"
+          // No maxzoom to allow overzooming of imagery while higher-resolution
+          // images load
+          // Would be ideal to have all zooms at a single url root with a proxy
+          // No maxzoom means zoom-12 tiles will load at higher zooms if panning
+          // enough
+          // maxzoom={12.5}
           beforeId="tunnel_motorway_link_casing"
           paint={{
             "raster-saturation": 0.35,
           }}
         />
         <Layer
-          source="naip-overview"
-          id="naip-layer-overview"
+          source="naip"
+          id="naip-layer"
           type="raster"
-          maxzoom={11.5}
           beforeId="tunnel_motorway_link_casing"
           paint={{
             "raster-saturation": 0.35,
