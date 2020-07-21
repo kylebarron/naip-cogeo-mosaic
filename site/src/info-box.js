@@ -22,9 +22,17 @@ export default function InfoBox(props) {
         overflow: "visible",
       }}
     >
-      <Header as="h3">Serverless NAIP Imagery</Header>
+      <Header as="h3">Serverless High-Res Imagery</Header>
       <p>
-        Serverless high-resolution NAIP map tiles, generated on demand from an{" "}
+        Serverless high-resolution{" "}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/"
+        >
+          NAIP
+        </a>{" "}
+        map tiles, generated on demand from an{" "}
         <a
           target="_blank"
           rel="noopener noreferrer"
