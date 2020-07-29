@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/naip-cogeo-mosaic/precache-manifest.7331bfc0176a640f2f35720b18b3a7f9.js"
+  "/naip-cogeo-mosaic/precache-manifest.bab715ab6241f788060c74d036dfe777.js"
 );
 
 self.addEventListener('message', (event) => {
