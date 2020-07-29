@@ -39,7 +39,7 @@ function constructMapStyle(mosaicYearRange) {
     type: "raster",
     tiles: [naipUrl(fullResMosaicUrl)],
     tileSize: 256,
-    minzoom: 13,
+    minzoom: 12,
     maxzoom: 18,
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
@@ -49,7 +49,7 @@ function constructMapStyle(mosaicYearRange) {
     tiles: [naipUrl(overviewMosaicUrl)],
     tileSize: 256,
     minzoom: 6,
-    maxzoom: 12,
+    maxzoom: 11,
     attribution:
       '<a href="https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/" target="_blank">© USDA</a>',
   };
