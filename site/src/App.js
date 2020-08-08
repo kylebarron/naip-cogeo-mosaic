@@ -7,7 +7,11 @@ import ReactMapGL, {
 } from "react-map-gl";
 import { Map } from "immutable";
 import InfoBox from "./info-box";
-import { getViewStateFromHash } from "./util";
+import {
+  getViewStateFromHash,
+  setQueryParams,
+  getMosaicFromQueryParams,
+} from "./util";
 import { fullResMosaics, overviewMosaics } from "./constants";
 const DEFAULT_MAP_STYLE = require("./style.json");
 
@@ -113,8 +117,10 @@ class App extends React.Component {
       ...INITIAL_VIEWPORT,
       ...getViewStateFromHash(window.location.hash),
     },
-    mosaicYearRange: INITIAL_MOSAIC_YEAR_RANGE,
-    mapStyle: constructMapStyle(INITIAL_MOSAIC_YEAR_RANGE),
+    mosaicYearRange: getMosaicFromQueryParams() || INITIAL_MOSAIC_YEAR_RANGE,
+    mapStyle: constructMapStyle(
+      getMosaicFromQueryParams() || INITIAL_MOSAIC_YEAR_RANGE
+    ),
   };
 
   render() {
@@ -129,12 +135,13 @@ class App extends React.Component {
         <InfoBox
           mosaicYearRange={mosaicYearRange}
           zoomIn={viewport.zoom < 4.5}
-          onChange={(selected) =>
+          onChange={(selected) => {
+            setQueryParams({ mosaic: selected });
             this.setState({
               mosaicYearRange: selected,
               mapStyle: constructMapStyle(selected),
-            })
-          }
+            });
+          }}
         />
       </div>
     );

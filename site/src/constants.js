@@ -1,3 +1,4 @@
+// Mapping from mosaic common identifier to URL
 export const fullResMosaics = {
   "2011-2013":
     "dynamodb://us-west-2/74f48044f38db32666078e75f3439d8e62cf9e25820afc79ea6ce19f",
@@ -9,6 +10,7 @@ export const fullResMosaics = {
     "dynamodb://us-west-2/94c61bd217e1211db47cf7f8b95bbc8e5e7d68a26cd9099319cf15f9",
 };
 
+// Mapping from mosaic common identifier to URL
 export const overviewMosaics = {
   "2011-2013":
     "s3://mosaics-us-west-2.kylebarron.dev/mosaics/naip/naip_overview_2011_2013.json.gz",

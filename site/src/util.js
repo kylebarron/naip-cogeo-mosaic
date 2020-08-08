@@ -1,3 +1,23 @@
+/* eslint-disable no-restricted-globals */
+export function getMosaicFromQueryParams() {
+  const params = new URLSearchParams(location.search);
+  return params.get("mosaic");
+}
+
+export function setQueryParams(newParams = {}) {
+  const params = new URLSearchParams(location.search);
+
+  for (const [key, value] of Object.entries(newParams)) {
+    params.set(String(key), String(value));
+  }
+
+  const newUrlString = `${location.pathname}?${params.toString()}${
+    location.hash
+  }`;
+  window.history.replaceState({}, "", newUrlString);
+}
+/* eslint-enable no-restricted-globals */
+
 /**
  * Get ViewState from page URL hash
  * Note: does not necessarily return all viewState fields
