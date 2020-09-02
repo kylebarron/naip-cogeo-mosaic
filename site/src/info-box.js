@@ -8,7 +8,7 @@ export default function InfoBox(props) {
   const panels = [
     {
       key: "header",
-      title: "Serverless High-Res Imagery",
+      title: "Serverless High-Resolution Imagery",
       content: {
         content: (
           <p>
