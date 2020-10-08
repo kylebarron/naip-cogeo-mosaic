@@ -24,13 +24,13 @@ store any imagery.
 
 This repository is designed to create [MosaicJSON][mosaicjson] files
 representing collections of NAIP imagery that can be used with
-[`cogeo-mosaic-tiler`][cogeo-mosaic-tiler] to serve map tiles on demand.
+[`titiler`][titiler] to serve map tiles on demand.
 
 [naip-info]: https://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/
 [naip-aws]: https://registry.opendata.aws/naip/
 [cog-format]: https://www.cogeo.org/
 [dynamic-map-tiling-blog]: https://kylebarron.dev/blog/cog-mosaic/overview
-[cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
+[titiler]: https://github.com/developmentseed/titiler
 [mosaicjson]: https://github.com/developmentseed/mosaicjson-spec
 
 ## Using
@@ -57,7 +57,7 @@ source activate naip-cogeo-mosaic
 If you prefer using pip, you can run
 
 ```
-pip install awscli click pygeos 'rio-cogeo>=2.0a4' 'cogeo-mosaic>=3.0a5'
+pip install awscli click pygeos 'rio-cogeo>=2.0' 'cogeo-mosaic>=3.0a5'
 ```
 
 ### Select TIF URLs
@@ -250,37 +250,36 @@ can still be some small holes in the data. See [issue #8][issue-8].
 
 ## Deploy
 
-```bash
-# Create lambda package
-git clone https://github.com/developmentseed/cogeo-mosaic-tiler
-cd cogeo-mosaic-tiler
-make package
-cd ..
+The older [`cogeo-mosaic-tiler`][cogeo-mosaic-tiler] is being deprecated in
+favor of the newer, more stable [`titiler`][titiler]. Refer to [`titiler`'s
+documentation][titiler-docs] for deployment instructions. **Note that since NAIP
+images are in a requester-pays bucket, you'll need to set
+`AWS_REQUEST_PAYER="requester"` in the environment.**
 
-# Deploy
-npm install serverless -g
-sls deploy --bucket your-mosaic-bucket
-```
+[cogeo-mosaic-tiler]: https://github.com/developmentseed/cogeo-mosaic-tiler
+[titiler-docs]: https://developmentseed.org/titiler/
 
 ### Upload MosaicJSON files
 
-In order for `cogeo-mosaic-tiler` to create your tiles on demand, it needs to
-access a MosaicJSON file, which you need to host somewhere accessible by
-`cogeo-mosaic-tiler`.
+In order for `titiler` to create your tiles on demand, it needs to access a
+MosaicJSON file, which you need to host somewhere accessible by `titiler`
+(preferably in the same AWS region).
 
 Generally the simplest method is uploading the JSON file to S3. However since
 these files are so large (~64MB uncompressed), I found that it was taking 2.5s
 to load and parse the JSON.
 
-As of v3, `cogeo-mosaic` (and thus also `cogeo-mosaic-tiler`) support alternate
-_backends_, such as DynamoDB. DynamoDB is a serverless database that makes
+As of v3, `cogeo-mosaic` (and thus also `titiler`) support alternate _backends_,
+such as [DynamoDB][dynamodb]. DynamoDB is a serverless database that makes
 loading the MosaicJSON fast, because the tiler only needs one or two reads,
 which each take around 10ms (as long as the DynamoDB table is in the same region
 as the tiler).
 
-For full backend docs, see [`cogeo-mosaic`][cogeo-mosaic].
+[dynamodb]: https://aws.amazon.com/dynamodb/
 
-[cogeo-mosaic]: https://github.com/developmentseed/cogeo-mosaic
+For full backend docs, see [`cogeo-mosaic`'s documentation][cogeo-mosaic-docs].
+
+[cogeo-mosaic-docs]: https://developmentseed.org/cogeo-mosaic/
 
 #### DynamoDB
 
